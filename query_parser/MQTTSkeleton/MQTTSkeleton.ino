@@ -31,7 +31,8 @@ MQTT::Client<IPStack, Countdown> client = MQTT::Client<IPStack, Countdown>(ipsta
 
 unsigned long lastMillis = 0;
 
-Dictionary<int, int> *tables = new SkipList<int, int>(-1, key_type_numeric_signed, sizeof(int), sizeof(int), 7);
+Dictionary < int, ion_value_t > *schema = new SkipList < int, ion_value_t > (key_type_numeric_signed, sizeof(int), 20, 3);
+Dictionary < int, ion_value_t > *records = new SkipList < int, ion_value_t > (key_type_numeric_signed, sizeof(int), 20, 3);
 
 void connect() {
   Serial.println("Connecting...");
@@ -53,16 +54,14 @@ void connect() {
   client.publish("one", message);
 }
 
-int createTable(String tableName) {
-  Dictionary<int, int> *my_dictionary = new SkipList<int, int>(-1, key_type_numeric_signed, sizeof(int), sizeof(int), 7);
-  //Data type to initialize Key and Value type of dictionary being created
-  int type = 0;
-  int insertStatus = insertTable(dictionary.instance->id, tableName);
-  Serial.println("Created table " + tableName);
-}
-
-void insertTable(int id, String tableName) {
-  return tables->insert(id, stringToInt(tableName));
+int createTable(String tableName, String fieldString) {
+  Serial.println("createTable called!");
+  ion_value_t ionTableName = (ion_value_t) &tableName;
+  ion_value_t ionFieldString = (ion_value_t) &fieldString;
+  schema->insert(stringToInt("name"), ionTableName);
+  schema->insert(stringToInt("fields"), ionFieldString);
+  String fields = (char*) schema->get(stringToInt("fields"));
+  Serial.println("fields " + fields);
 }
 
 int stringToInt(char* str) {
@@ -76,12 +75,7 @@ int stringToInt(char* str) {
 
 void setup() {
   Serial.begin(9600);
-  Ethernet.begin(mac);
-
-  //Data type to initialize Key and Value type of dictionary being created
-  int type = 1;
-  tables = master_table->initializeDictionary(key_type_numeric_signed, type, type, sizeof(int), sizeof(int), 14, dictionary_type_skip_list_t);
-  
+  Ethernet.begin(mac);  
   connect();
 }
 
@@ -91,7 +85,25 @@ void loop() {
   client.yield(1000);
 }
 
-void messageReceived(String topic, String payload) {
+void messageReceived(MQTT::MessageData& md) {
+  MQTT::Message &message = md.message;
+  String payload = (char *) message.payload;
   Serial.println("message received");
-  createTable("team")
+  Serial.println(payload);
+  StaticJsonBuffer<200> jsonBuffer;
+
+  JsonObject& root = jsonBuffer.parseObject(payload);
+  const char* operationType = root["operation_type"];
+  Serial.println((String) operationType);
+  if((String) operationType == "CREATE") {
+    const char* tableName = root["query_data"]["table"];
+    const char* fieldString = root["query_data"]["fields"];
+    createTable(tableName, fieldString);
+    Cursor < int, void* > *my_cursor = schema->allRecords();
+    while (my_cursor->next()) {
+      Serial.println("itereating");
+      char* value = (char*) my_cursor->getValue();
+      Serial.println((String) value);
+    }
+  }
 }

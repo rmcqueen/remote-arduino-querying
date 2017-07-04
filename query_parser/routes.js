@@ -8,7 +8,8 @@ module.exports = (app) => {
    * The idea is that responders should not be kept with the routes, only routes go here
    */
   app.get('/publish_query', (req, res) => {
-    const queryString = decodeURIComponent(res.queryString);
-    publishQueryData(queryString);
+    const queryString = decodeURIComponent(req.query.queryString);
+    publishQueryData(queryString)
+      .then(result => res.send(result));
   });
 };
