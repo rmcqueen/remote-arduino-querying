@@ -1,0 +1,57 @@
+.textArea{
+    margin: 0px -3.84375px 0px 0px;
+    width: 300px;
+    height: 115px;
+}
+
+#left{
+    margin-top: 4%;
+    padding-left: 5%;
+    display: inline-block;
+}
+
+#right{
+    display: inline-block;
+    padding-left: 5%;
+    position: relative;
+    top: 7.5%;
+
+}
+
+#exportButton{
+
+    float: right;
+    margin-right: 4.5%;
+    margin-top: 10%;
+
+}
+
+#sendButton{
+    float:right;
+    margin-right: 10%;
+}
+
+#checkbox{
+    margin-left: 20%;
+
+}
+
+.progress-striped{
+    margin-left: 5%;
+    margin-top: 4%;
+    width: 50%;
+}
+
+#publish{
+    margin: 0 -3.84375px 0 0;
+    width: 300px;
+    height: 115px;
+}
+
+#resultArea{
+
+    margin: 0 -3.84375px 0 0;
+    width: 300px;
+    height: 200px;
+}
+

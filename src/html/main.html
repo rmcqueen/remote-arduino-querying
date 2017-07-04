@@ -1,0 +1,81 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <script type="text/javascript" src="../JavaScript/mqttws31.js"></script>
+    <script type="text/javascript" src="../JavaScript/client.js"></script>
+    <link rel="stylesheet" href="../css/stylesheet.css">
+    <link rel="stylesheet" href="../css/bootstrap.min.css">
+
+</head>
+<body>
+
+
+<div id="left">
+    <form action="">
+
+        <label for="publish" class="col-lg-2 control-label">Enter Query:</label>
+        <div class="col-lg-10">
+            <textarea class="form-control" rows="3" id="publish"></textarea><br>
+        </div>
+
+        <!-- This will have to change depending on the number of arduinos plugged in -->
+        <br>
+
+    </form>
+
+    <label for="checkbox" class="col-lg-2 control-label">Send To:</label>
+    <div id="checkbox">
+        <div>
+            <label>
+                <input type="checkbox" id="arduino1"> Arduino1
+            </label>
+        </div>
+        <div>
+            <label>
+                <input type="checkbox" id="arduino2"> Arduino2
+            </label>
+        </div>
+        <div>
+            <label>
+                <input type="checkbox" id="arduino3"> Arduino3
+            </label>
+        </div>
+        <div>
+            <label>
+                <input type="checkbox" id="arduino4"> Arduino4
+            </label>
+        </div>
+    </div>
+
+    <input type="button" class="btn btn-default" id="sendButton" value="Send"
+           onclick="send(document.getElementById('publish').value);"/><br><br>
+
+    <!--  confirmation dialogue
+
+       <div class="alert alert-dismissible alert-success">
+           <button type="button" class="close" data-dismiss="alert">&times;</button>
+           <strong>Message Sent!</strong>
+       </div>
+   -->
+
+</div>
+
+<div id="right">
+    <div class="form-group">
+        <label for="resultArea" class="col-lg-2 control-label">Results:</label>
+        <div class="col-lg-10">
+            <textarea class="form-control" rows="3" id="resultArea">
+            </textarea>
+        </div>
+    </div>
+
+    <button type="button" onclick="CSV_download();" class="btn btn-default" id="exportButton">Export to CSV</button>
+</div>
+
+<div class="progress progress-striped active">
+    <div class="progress-bar" style="width: 45%"></div>
+</div>
+
+
+</body>
+</html>

@@ -1,0 +1,15 @@
+{
+  "name": "query_parser",
+  "version": "1.0.0",
+  "description": "parsers basic queries and publishes json result",
+  "main": "publishQueryData.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "test"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.15.3"
+  }
+}
