@@ -3,6 +3,7 @@
 <head>
     <script type="text/javascript" src="../JavaScript/mqttws31.js"></script>
     <script type="text/javascript" src="../JavaScript/client.js"></script>
+    <script type="text/javascript" src="../JavaScript/jquery.min.js"></script>
     <link rel="stylesheet" href="../css/stylesheet.css">
     <link rel="stylesheet" href="../css/bootstrap.min.css">
 
@@ -21,7 +22,6 @@
         <!-- This will have to change depending on the number of arduinos plugged in -->
         <br>
 
-    </form>
 
     <label for="checkbox" class="col-lg-2 control-label">Send To:</label>
     <div id="checkbox">
@@ -50,13 +50,12 @@
     <input type="button" class="btn btn-default" id="sendButton" value="Send"
            onclick="send(document.getElementById('publish').value);"/><br><br>
 
-    <!--  confirmation dialogue
 
-       <div class="alert alert-dismissible alert-success">
-           <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </form>
+
+       <div class="alert alert-dismissible alert-success" id="successBox">
            <strong>Message Sent!</strong>
        </div>
-   -->
 
 </div>
 
@@ -76,6 +75,7 @@
     <div class="progress-bar" style="width: 45%"></div>
 </div>
 
+<script type="text/javascript" src="../JavaScript/ajaxfunction.js"></script>
 
 </body>
 </html>
