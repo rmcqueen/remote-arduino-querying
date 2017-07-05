@@ -1,28 +1,30 @@
 const mqtt = require('mqtt')
 const url = require('url');
-const { parseCreateTable, parseInsert, parseSelect } = require('./parsers')
+const { parseCreateTable, parseDescribe, parseInsert, parseSelect } = require('./parsers')
 const Promise = require("bluebird");
 
 module.exports = queryString => {
   return new Promise((resolve, reject) => {
     const operationType = getOperationType(queryString);
     const parse = getQueryParser(operationType);
-    const queryJson = JSON.stringify({ operation_type: operationType, query_data: parse(queryString) });
+    const queryJson = JSON.stringify({ op_code: operationType[0].toLowerCase(), query: parse(queryString) });
 
     return publishQueryData(queryJson);
 
     function getOperationType(queryString) {
-      const operations = ['CREATE TABLE', 'SELECT', 'INSERT INTO'];
-      return operations.filter(operation => queryString.indexOf(operation) === 0)[0];
+      const operations = ['CREATE', 'SELECT', 'INSERT', 'DESCRIBE'];
+      return operations.filter(operation => queryString.split()[0].indexOf(operation) === 0)[0];
     }
 
     function getQueryParser(operationType) {
       switch(getOperationType(operationType)) {
-        case 'CREATE TABLE':
+        case 'CREATE':
           return parseCreateTable;
+        case 'DESCRIBE':
+          return parseDescribe;
         case 'SELECT':
           return parseSelect
-        case 'INSERT INTO':
+        case 'INSERT':
           return parseInsert;
         default:
           return new Error('Could not resolve operation type');
@@ -32,8 +34,8 @@ module.exports = queryString => {
     function publishQueryData(queryData) {
       const client  = mqtt.connect('http://localhost:1883');
       client.on('connect', function () {
-        client.subscribe('QUERY')
-        client.publish('QUERY', queryData);
+        client.subscribe('arduino1')
+        client.publish('arduino1', queryData);
         console.log("published " + queryData);
       })
 

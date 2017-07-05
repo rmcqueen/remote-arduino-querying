@@ -27,7 +27,8 @@ Dictionary < int, ion_value_t > *team = new SkipList < int, ion_value_t > (key_t
 
 //master table
 Dictionary < int, void* > *tables = new SkipList < int, void* > (key_type_numeric_signed, sizeof(int), sizeof(void*), 4);
-  
+const int tableSize = sizeof(*tables);
+
 //Network settings
 IPAddress ip(192, 168, 1, 68);
 IPAddress server(127, 0, 0, 1);
