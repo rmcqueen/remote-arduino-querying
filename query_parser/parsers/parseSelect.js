@@ -11,5 +11,5 @@ module.exports = sql => {
     fields: constructFieldList(fieldString),
   }
 
-  return req;
+  return { table: tableName };
 }

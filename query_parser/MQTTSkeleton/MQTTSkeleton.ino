@@ -23,6 +23,7 @@ byte mac[] = {
 };
 
 const char* topic = "arduino1";
+int recordCount = 3; // TODO filthy hack, clean me
 
 //MQTT client setup 
 EthernetClient c;
@@ -56,38 +57,23 @@ void connect() {
   client.publish("one", message);
 }
 
-int createTable(char* tableName, String fieldString) {
-  Serial.println("createTable called!");
+int createTable(char* tableName, char* fieldString) {
+  Serial.println("createTable called");
+
+  // init dictionary
   Dictionary < int, ion_value_t > *table = new SkipList < int, ion_value_t > (key_type_numeric_signed, 32, 20, 3);
-  ion_value_t ionTableName = (ion_value_t) "Team";
-  ion_value_t ionFieldString = (ion_value_t) "f1:i;f2:s";
+  ion_value_t ionTableName = (ion_value_t) tableName;
+  ion_value_t ionFieldString = (ion_value_t) fieldString;
+  // insert schema into table directory
   table->insert(1, ionTableName);
   table->insert(2, ionFieldString);
-  Cursor < int, void* > *my_cursor = table->allRecords();
-  String result = "";
-  
-  while (my_cursor->next()) {
-    char* value = my_cursor->getValue();
-    result = result + (String) value;
-  }
-  
-  Serial.print("Table: ");
-  Serial.println((String) result);
   
   // save table in memory
   Dictionary< int, ion_value_t> *tableCache = malloc(tableSize);
   memset(tableCache, 0, tableSize);
   memcpy(tableCache, table, sizeof(*table));
-  my_cursor = tableCache->allRecords();
-  result = "";
-  while (my_cursor->next()) {
-    char* value = my_cursor->getValue();
-    result = result + (String) value;
-  }
-  
-  Serial.print("Clone: ");
-  Serial.println((String) result);
   tables->insert((char*) stringToInt(tableName), tableCache);
+  
   Serial.println("Finished creating table");
 }
 
@@ -97,10 +83,14 @@ Dictionary< int, ion_value_t>* getTableByName(char* tableName) {
 
 Cursor<int, void*>* getSchemaCursorByTableName(char* tableName) {
     // save table in memory
-    void *tableCache = malloc(tableSize);
     void *tableAddress = tables->get((char*) stringToInt(tableName));
-    memcpy(tableCache, tableAddress, tableSize);
-    return ((Dictionary< int, ion_value_t>*) tableCache)->allRecords();
+    return ((Dictionary< int, ion_value_t>*) tableAddress)->allRecords();
+}
+
+Dictionary <int, ion_value_t>* getTableByTableName(char* tableName) {
+    // save table in memory
+    void *tableAddress = tables->get((char*) stringToInt(tableName));
+    return ((Dictionary< int, ion_value_t>*) tableAddress);
 }
 
 void describeTable(char* tableName) {
@@ -108,7 +98,7 @@ void describeTable(char* tableName) {
   String result = "";
   while (my_cursor->next()) {
     char* value = my_cursor->getValue();
-    result = result + (String) result + ";";
+    result = result + (String) result + "\n";
     Serial.println((String)value);
   }
   
@@ -122,6 +112,23 @@ void describeTable(char* tableName) {
   int statusId = client.publish("one", message);
 }
 
+void insertInto(char* tableName, char* tuple) {
+  Dictionary< int, ion_value_t>* table = getTableByTableName(tableName);
+  table->insert(recordCount, tuple);
+  recordCount = recordCount + 1;
+}
+
+String selectAll(char* tableName) {
+  Cursor< int, ion_value_t > *my_cursor = getSchemaCursorByTableName(tableName);
+  String result = "";
+  while (my_cursor->next()) {
+    char* value = my_cursor->getValue();
+    result = result + (String) value;
+  }
+  return result;
+}
+
+// Helpers
 int stringToInt(char* str) {
     int result = 0;
     for(int i = (strlen(str)-1); i >= 0; i--) {
@@ -131,16 +138,17 @@ int stringToInt(char* str) {
     return result;
 }
 
-void setup() {
-  Serial.begin(9600);
-  Ethernet.begin(mac);  
-  connect();
-}
-
-void loop() {
-  if (!client.isConnected())
-    connect();
-  client.yield(1000);
+void printTableByName(char* tableName) {
+  // show insert indeed worked by printing table schema
+  Cursor< int, ion_value_t > *my_cursor = getSchemaCursorByTableName(tableName);
+  String result = "";
+  while (my_cursor->next()) {
+    char* value = my_cursor->getValue();
+    result = result + (String) value;
+  }
+  Serial.println("Printing table...");
+  Serial.println(result);
+  
 }
 
 void messageReceived(MQTT::MessageData& md) {
@@ -151,31 +159,46 @@ void messageReceived(MQTT::MessageData& md) {
   StaticJsonBuffer<200> jsonBuffer;
 
   JsonObject& root = jsonBuffer.parseObject(payload);
-  const char* opCode = root["op_code"];
-  Serial.println((String) opCode);
-
+  
+  char* opCode = root["op_code"];
+  char* tableName = root["query"]["table"];
+  Serial.println("Table: " + (String)tableName + "; opCode: " + (String)opCode);
+  
   // create table 
   if((String) opCode == "c") {
-    const char* tableName = root["query"]["table"];
-    const char* fieldString = root["query"]["fields"];
+    char* fieldString = root["query"]["fields"];
     createTable(tableName, fieldString);
-
-    // show insert indeed worked by printing table schema
-    Cursor< int, ion_value_t > *my_cursor = getSchemaCursorByTableName(tableName);
-    String result = "";
-    while (my_cursor->next()) {
-      char* value = my_cursor->getValue();
-      result = result + (String) value;
-    }
-    
-    Serial.println("Final: ");
-    Serial.println((String) result);
-    //describeAllTables();
+    printTableByName(tableName);
   }
 
   // describe table
   if((String) opCode == "d") {
-    const char* tableName = root["query"]["table"];
     describeTable(tableName);
   }
+
+  // insert into table
+  if((String) opCode == "i") {
+    char* fields = root["query"]["fields"];
+    insertInto(tableName, fields);
+    printTableByName(tableName);
+  }
+
+  // select from table
+  if((String) opCode == "s") {
+    String result = selectAll(tableName);
+    Serial.println("Select all result: " + result);
+  }
+}
+
+// main
+void setup() {
+  Serial.begin(9600);
+  Ethernet.begin(mac);  
+  connect();
+}
+
+void loop() {
+  if (!client.isConnected())
+    connect();
+  client.yield(1000);
 }
