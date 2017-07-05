@@ -1,5 +1,6 @@
 function ajaxCall() {
 
+
     var queryBox = $('#publish').val();
     var selectedCheckboxes = "";
 
@@ -14,7 +15,7 @@ function ajaxCall() {
         url: "",
         type: "get",
         data: {
-            secondQuery: queryBox,
+            query: queryBox,
             arduino: selectedCheckboxes
         },
 
@@ -31,5 +32,4 @@ function ajaxCall() {
 
         }
     });
-
 }
