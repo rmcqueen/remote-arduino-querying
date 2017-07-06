@@ -5,7 +5,7 @@
 // network variables
 var hostname = "127.0.0.1";
 var port = 8080;
-
+var connectedClients = [];
 // Create a client instance
 var client = new Paho.MQTT.Client(hostname, Number(port), "clientId");
 
@@ -39,6 +39,9 @@ function onConnect() {
 	client.subscribe("four", {
 		qos : 2
 	});
+	client.subscribe("status/#", {
+		qos : 2
+	});
 }
 
 // Lost connection
@@ -50,10 +53,20 @@ function onConnectionLost(responseObject) {
 
 // Arriving messages
 function onMessageArrived(message) {
-	console.log("onMessageArrived:" + message.payloadString);
-	console.log(message.destinationName);
-	if (message.destinationName == "clients") {
-		createCheckBoxes(message.payloadString);
+	destination = message.destinationName.split('/')[0]
+	clientId = message.destinationName.split('/')[1];
+	console.log(clientId);
+
+	if (destination == "status") {
+		if(message.payloadString == "online" && $.inArray(clientId, connectedClients) == -1) {
+			connectedClients.push(clientId);
+			createCheckBoxes(clientId);
+		}
+
+		if(message.payloadString == "offline" && $.inArray(clientId, connectedClients) != -1) {
+			connectedClients.splice($.inArray(clientId, connectedClients), 1);
+			removeCheckboxes(clientId);
+		}
 	}
 	if (message.destinationName == "one") {
 		document.getElementById("resultArea").innerHTML = "Results Arduino1:"
@@ -142,4 +155,10 @@ function createCheckBoxes(name) {
 	$('<input />', { type: 'checkbox', id: name, value: name}).appendTo(container);
 	$('<label />', { 'for': name, text: name}).appendTo(container);
 	$('<div />').appendTo(container);
+}
+
+function removeCheckboxes(name) {
+	console.log(name);
+	$('#'+name).remove();
+	$('label[for=' + name + ']').remove();
 }
