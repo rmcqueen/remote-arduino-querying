@@ -216,6 +216,6 @@ function displayResults(clientId, message) {
     if (clientId) {
         document.getElementById("resultArea").innerHTML = "Results from " +
             clientId + ": " + message;
-        appendcsvInputData("\n" + clientId + ": " + message);
+        appendcsvInputData("\n" + clientId + ":\n" + message);
     }
 }
