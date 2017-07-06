@@ -1,11 +1,8 @@
 <!DOCTYPE HTML>
 <html>
 <head>
-    <script type="text/javascript" src="../JavaScript/mqttws31.js"></script>
-    <script type="text/javascript" src="../JavaScript/client.js"></script>
     <link rel="stylesheet" href="../css/stylesheet.css">
     <link rel="stylesheet" href="../css/bootstrap.min.css">
-
 </head>
 <body>
 
@@ -25,26 +22,6 @@
 
     <label for="checkbox" class="col-lg-2 control-label">Send To:</label>
     <div id="checkbox">
-        <div>
-            <label>
-                <input type="checkbox" id="arduino1"> Arduino1
-            </label>
-        </div>
-        <div>
-            <label>
-                <input type="checkbox" id="arduino2"> Arduino2
-            </label>
-        </div>
-        <div>
-            <label>
-                <input type="checkbox" id="arduino3"> Arduino3
-            </label>
-        </div>
-        <div>
-            <label>
-                <input type="checkbox" id="arduino4"> Arduino4
-            </label>
-        </div>
     </div>
 
     <input type="button" class="btn btn-default" id="sendButton" value="Send"
@@ -76,6 +53,8 @@
     <div class="progress-bar" style="width: 45%"></div>
 </div>
 
-
+<script type="text/javascript" src="../JavaScript/mqttws31.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script type="text/javascript" src="../JavaScript/client.js"></script>
 </body>
 </html>
