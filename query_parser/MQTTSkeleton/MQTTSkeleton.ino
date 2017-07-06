@@ -16,8 +16,9 @@
 #include <Countdown.h>
 
 //Network settings
-IPAddress ip(192,168,0,14);
-IPAddress server(192,168,0,13);
+IPAddress ip(192,168,2,2);
+IPAddress server(10,110,9,7);
+
 byte mac[] = {
   0x00, 0xAA, 0xBB, 0xCC, 0xDE, 0x02
 };
@@ -40,21 +41,22 @@ int tableSize = sizeof(*maxTableSize);
 void connect() {
   Serial.println("Connecting...");
   int port = 1883;
-  char hostname[] = "192.168.0.13";
-  int statusId = ipstack.connect(hostname, port);
+  char hostname[] = "127.0.0.1";
+  int statusId = ipstack.connect(server, port);
   MQTTPacket_connectData data = MQTTPacket_connectData_initializer;
   data.clientID.cstring = (char*) "Arduino1";
   statusId = client.connect(data);
   
- client.subscribe(topic, MQTT::QOS2, messageReceived);
-  char* msg = "here";
-  MQTT::Message message;
-  message.qos = MQTT::QOS2;
-  message.retained = false;
-  message.dup = false;
-  message.payload = (void*) msg;
-  message.payloadlen = strlen(msg)+1;
-  client.publish("one", message);
+  client.subscribe(topic, MQTT::QOS2, messageReceived);
+  sendMessageToTopic("checking in");
+//  char* msg = "checking in";
+//  MQTT::Message message;
+//  message.qos = MQTT::QOS2;
+//  message.retained = false;
+//  message.dup = false;
+//  message.payload = (void*) msg;
+//  message.payloadlen = strlen(msg)+1;
+//  client.publish("one", message);
 }
 
 int createTable(char* tableName, char* fieldString) {
@@ -101,21 +103,22 @@ void describeTable(char* tableName) {
     result = result + (String) result + "\n";
     Serial.println((String)value);
   }
-  
-  //Test sending outgoing message
-  MQTT::Message message;
-  message.qos = MQTT::QOS2;
-  message.retained = false;
-  message.dup = false;
-  message.payload = (void*) &result;
-  message.payloadlen = sizeof(result)+1;
-  int statusId = client.publish("one", message);
+  sendMessageToTopic(result);
+  // Test sending outgoing message
+//  MQTT::Message message;
+//  message.qos = MQTT::QOS2;
+//  message.retained = false;
+//  message.dup = false;
+//  message.payload = (void*) &result;
+//  message.payloadlen = sizeof(result)+1;
+//  int statusId = client.publish("one", message);
 }
 
 void insertInto(char* tableName, char* tuple) {
   Dictionary< int, ion_value_t>* table = getTableByTableName(tableName);
   table->insert(recordCount, tuple);
   recordCount = recordCount + 1;
+  Serial.println("Finsished insert");
 }
 
 String selectAll(char* tableName) {
@@ -148,7 +151,17 @@ void printTableByName(char* tableName) {
   }
   Serial.println("Printing table...");
   Serial.println(result);
-  
+}
+
+void sendMessageToTopic(String result) {
+  char* msg = result.c_str();
+  MQTT::Message message;
+  message.qos = MQTT::QOS2;
+  message.retained = false;
+  message.dup = false;
+  message.payload = (void*) msg;
+  message.payloadlen = strlen(msg)+1;
+  client.publish(topic, message);
 }
 
 void messageReceived(MQTT::MessageData& md) {
@@ -157,7 +170,6 @@ void messageReceived(MQTT::MessageData& md) {
   Serial.println("message received");
   Serial.println(payload);
   StaticJsonBuffer<200> jsonBuffer;
-
   JsonObject& root = jsonBuffer.parseObject(payload);
   
   char* opCode = root["op_code"];
@@ -180,13 +192,14 @@ void messageReceived(MQTT::MessageData& md) {
   if((String) opCode == "i") {
     char* fields = root["query"]["fields"];
     insertInto(tableName, fields);
-    printTableByName(tableName);
+    Serial.println("Finished insert");
   }
 
   // select from table
   if((String) opCode == "s") {
     String result = selectAll(tableName);
     Serial.println("Select all result: " + result);
+    sendMessageToTopic(result);
   }
 }
 
