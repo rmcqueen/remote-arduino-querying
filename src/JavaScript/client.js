@@ -24,6 +24,9 @@ client.connect({
 // Connection
 function onConnect() {
 	console.log("onConnect");
+	client.subscribe("clients", {
+		qos : 2
+	});
 	client.subscribe("one", {
 		qos : 2
 	});
@@ -48,7 +51,10 @@ function onConnectionLost(responseObject) {
 // Arriving messages
 function onMessageArrived(message) {
 	console.log("onMessageArrived:" + message.payloadString);
-
+	console.log(message.destinationName);
+	if (message.destinationName == "clients") {
+		createCheckBoxes(message.payloadString);
+	}
 	if (message.destinationName == "one") {
 		document.getElementById("resultArea").innerHTML = "Results Arduino1:"
 				+ message.payloadString;
@@ -129,4 +135,11 @@ function CSV_download() {
     download.setAttribute("href",encodedUri);
     download.setAttribute("download", "results.csv");
     download.click();
+}
+
+function createCheckBoxes(name) {
+	container = $('#checkbox')
+	$('<input />', { type: 'checkbox', id: name, value: name}).appendTo(container);
+	$('<label />', { 'for': name, text: name}).appendTo(container);
+	$('<div />').appendTo(container);
 }
