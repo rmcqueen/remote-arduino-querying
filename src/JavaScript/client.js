@@ -3,8 +3,8 @@
  */
 
 // network variables
-var hostname = "127.0.0.1";
-var port = 8080;
+const hostname = "127.0.0.1";
+const port = 8080;
 var connectedClients = [];
 
 // Create a client instance
@@ -97,12 +97,12 @@ function onMessageArrived(message) {
 */
 function send() {
 	// Get the query from the query box
-    var userQuery = $('#publish').val();
+    var userQuery = $("#publish").val();
     var selectedArduinos = [];
 
 	// Reset the values within the text area
-    document.getElementById("publish").value = "";
-
+    $("#publish").val("");
+    
 	// Return if there is no available MQTT client to use
     if (!client) {
         return;
@@ -214,8 +214,7 @@ function removeCheckboxes(name) {
 */
 function displayResults(clientId, message) {
     if (clientId) {
-        document.getElementById("resultArea").innerHTML = "Results from " +
-            clientId + ": " + message;
+        $("#resultArea").val("Results from " + clientId + ": " + message);
         appendcsvInputData("\n" + clientId + ":\n" + message);
     }
 }
