@@ -31,11 +31,12 @@ module.exports = queryString => {
       }
     }
 
+    //TODO: Set publish topic based on "arduino: selectedArduinos" from get request
     function publishQueryData(queryData) {
       const client  = mqtt.connect('http://localhost:1883');
       client.on('connect', function () {
         client.subscribe('arduino1')
-        client.publish('arduino1', queryData);
+        client.publish('arduino1', queryData,{qos:2,retain:false});
         console.log("published " + queryData);
       })
 
