@@ -81,9 +81,23 @@ function onMessageArrived(message) {
 
     if (destination == "query") {
         displayResults(clientId, message.payloadString);
+        fillProgressBar(1, 100);
     } else {
         console.log("No results");
     }
+}
+
+/*
+* Purpose: When a message has been delivered, the progress bar will fill up.
+* A message being delivered means the processing that this client does is finished,
+* and the message has been sent to the server.
+*
+ * @param Message message a MQTT message object containing information about the
+ * message received. Contains the destination/topic, and the string of information
+ * it sent back. See mqttws31.js for more information
+ */
+function onMessageDelivered(message) {
+    fillProgressBar(1, 66);
 }
 
 
@@ -102,7 +116,7 @@ function send() {
 
 	// Reset the values within the text area
     $("#publish").val("");
-    
+
 	// Return if there is no available MQTT client to use
     if (!client) {
         return;
@@ -127,6 +141,7 @@ function send() {
             if (userQuery != "") {
                 $("#successBox").show();
                 $("#successBox").fadeOut(3000);
+                fillProgressBar(1, 33);
             }
 
         }
@@ -216,5 +231,50 @@ function displayResults(clientId, message) {
     if (clientId) {
         $("#resultArea").val("Results from " + clientId + ": " + message);
         appendcsvInputData("\n" + clientId + ":\n" + message);
+    }
+}
+
+/*
+* Purpose: this function fills up the progress bar in 3 steps. The first 1/3
+* of the bar gets filled after a message has been sent from the web client.
+* The second 1/3 of the bar gets filled up once a message has been delivered
+* to the server. Once a message has been received and written out on the
+* web client, it will fill up the whole progress bar.
+* After 2 seconds, the progress bar resets itself.
+*
+* @param int start the position the progress bar will start to fill at.
+*
+* @param int finish the position the progress bar will finish filling at.
+*/
+function fillProgressBar(start, finish) {
+
+    var startingWidth = start;
+    var progressBar = document.getElementById("progressBar");
+    var clear = setInterval(stopFill, 1);
+
+    function stopFill() {
+        if (startingWidth >= finish) {
+            clearInterval(clear);
+        } else {
+            startingWidth++;
+            progressBar.style.width = startingWidth + '%';
+            if (startingWidth <= 33) {
+                progressBar.innerHTML = "Message Sent...";
+            }
+            else if (startingWidth <= 66) {
+                progressBar.innerHTML = "Message Delivered...";
+            }
+            else if (startingWidth > 66) {
+                progressBar.innerHTML = "Message Received";
+                progressBar.className = "progress-bar progress-bar-success";
+
+                setTimeout(function () {
+                    progressBar.style.width = 0 + '%';
+                    progressBar.innerHTML = ""
+                }, 2000);
+
+            }
+
+        }
     }
 }
