@@ -187,7 +187,9 @@ void messageArrived(MQTT::MessageData& md) {
 
   // select from table
   if((String) opCode == "s") {
-    sendMessageToTopic(selectAll(tableName));
+    char * result = selectAll(tableName);
+    sendMessageToTopic(result);
+    free(result);
   }
 }
 
