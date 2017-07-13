@@ -26,7 +26,10 @@ int recordCount;
 //MQTT client setup 
 EthernetClient c;
 IPStack ipstack(c);
-MQTT::Client<IPStack, Countdown> client = MQTT::Client<IPStack, Countdown>(ipstack);
+
+const int MAX_MQTT_PACKET_SIZE = 512;
+
+MQTT::Client<IPStack, Countdown, MAX_MQTT_PACKET_SIZE> client = MQTT::Client<IPStack, Countdown, MAX_MQTT_PACKET_SIZE>(ipstack);
 
 unsigned long lastMillis = 0;
 
@@ -40,20 +43,29 @@ void connect() {
   int port = 1883;
   char hostname[] = "192.168.1.100";
   int statusId = ipstack.connect(hostname, port);
-  MQTTPacket_connectData data = MQTTPacket_connectData_initializer;
-  data.clientID.cstring = (char*) "Arduino1";
-  statusId = client.connect(data);
   
+  //************************************ONLINE/OFFLINE detecting code*********************************************************** 
+  MQTTPacket_connectData data = MQTTPacket_connectData_initializer;       
+  data.willFlag = 1;
+  data.clientID.cstring = (char*) "Arduino1";                               //Set for each Arduino
+  data.will.topicName.cstring = (char*) "status/Arduino1";                  //Set to status/ <ID>
+  data.will.qos = 2;
+  data.will.retained = 1;
+  data.will.message.cstring = (char*) "offline";
+  client.connect(data);
+
+  //Online flag
+  char buf[128];
+  sprintf(buf,"online");
+  MQTT::Message message;
+  message.qos = MQTT::QOS2;
+  message.retained = true;
+  message.payload = (void*)buf;
+  message.payloadlen = strlen(buf);
+  client.publish("status/Arduino1", message);      
+  //****************************************************************************************************************************
+   
   client.subscribe(topic, MQTT::QOS2, messageArrived);
-//sendMessageToTopic("checking in");
-//  char* msg = "checking in";
-//  MQTT::Message message;
-//  message.qos = MQTT::QOS2;
-//  message.retained = false;
-//  message.dup = false;
-//  message.payload = (void*) msg;
-//  message.payloadlen = strlen(msg)+1;
-//  client.publish("one", message);
 }
 
 int createTable(char* tableName, char* fieldString) {
