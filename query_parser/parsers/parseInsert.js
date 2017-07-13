@@ -1,5 +1,5 @@
 module.exports = sql => {
-  const tableName = sql.split('INSERT INTO ')[1].split('(')[0];
+  const tableName = sql.split('INSERT INTO ')[1].split(' ')[0];
   const fieldNamesString = sql.split('(')[1].split(')')[0].split(', ').join(',');
   const fieldValuesString = sql.split('(')[2].split(')')[0].split(', ').join(',');
 

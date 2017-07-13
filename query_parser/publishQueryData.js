@@ -7,7 +7,7 @@ module.exports = queryString => {
   return new Promise((resolve, reject) => {
     const operationType = getOperationType(queryString);
     const parse = getQueryParser(operationType);
-    const queryJson = JSON.stringify({ op_code: operationType[0].toLowerCase(), query: parse(queryString) });
+    const queryJson = JSON.stringify({ op_code: operationType[0].toLowerCase(), query: parse(queryString)});
 
     return publishQueryData(queryJson);
 
