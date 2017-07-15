@@ -4,12 +4,13 @@
 void
 setup(
 ) {
+  SD.begin(13);
   Serial.begin(9600);
   /* Creating the dictionary */
-  Dictionary < int, ion_value_t > *colour = new SkipList < int, ion_value_t > (key_type_numeric_signed, sizeof(int), sizeof(ion_value_t), 5);
-  Dictionary < int, ion_value_t > *car = new SkipList < int, ion_value_t > (key_type_numeric_signed, sizeof(int), sizeof(ion_value_t), 5);
-  Dictionary < int, ion_value_t > *food = new SkipList < int, ion_value_t > (key_type_numeric_signed, sizeof(int), sizeof(ion_value_t), 5);
-  Dictionary < int, ion_value_t > *team = new SkipList < int, ion_value_t > (key_type_numeric_signed, sizeof(int), sizeof(ion_value_t), 4);
+  Dictionary < int, ion_value_t > *colour = new FlatFile < int, ion_value_t > (key_type_numeric_signed, sizeof(int), sizeof(ion_value_t), 5);
+  Dictionary < int, ion_value_t > *car = new FlatFile < int, ion_value_t > (key_type_numeric_signed, sizeof(int), sizeof(ion_value_t), 5);
+  Dictionary < int, ion_value_t > *food = new FlatFile < int, ion_value_t > (key_type_numeric_signed, sizeof(int), sizeof(ion_value_t), 5);
+  Dictionary < int, ion_value_t > *team = new FlatFile < int, ion_value_t > (key_type_numeric_signed, sizeof(int), sizeof(ion_value_t), 4);
   
   /* creating values. ion_value_t = string */
   ion_value_t red = (ion_value_t) "Red";
