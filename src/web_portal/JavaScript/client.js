@@ -8,7 +8,7 @@ const port = 8080;
 var connectedClients = [];
 
 // Create a client instance
-var client = new Paho.MQTT.Client(hostname, Number(port), "clientId");
+var client = new Paho.MQTT.Client(hostname, Number(port), "web_portal");
 
 // set callback handlers
 client.onConnectionLost = onConnectionLost;
@@ -29,6 +29,7 @@ client.connect({
 * available to be picked from, and the queries results that are being sent back
 */
 function onConnect() {
+    console.log('Connected!');
     client.subscribe("status/#", {
         qos: 2
     });

@@ -41,7 +41,7 @@ int tableSize = sizeof(*maxTableSize);
 void connect() {
   Serial.println("Connecting...");
   int port = 1883;
-  char hostname[] = "192.168.1.100";
+  char hostname[] = "192.168.0.13";
   int statusId = ipstack.connect(hostname, port);
   
   //************************************ONLINE/OFFLINE detecting code*********************************************************** 
@@ -66,6 +66,9 @@ void connect() {
   //****************************************************************************************************************************
    
   client.subscribe(topic, MQTT::QOS2, messageArrived);
+  if(client.isConnected()) {
+    Serial.println("Connected!");
+  }
 }
 
 int createTable(char* tableName, char* fieldString) {
