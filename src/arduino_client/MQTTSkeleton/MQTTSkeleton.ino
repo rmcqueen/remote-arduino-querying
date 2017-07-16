@@ -16,7 +16,7 @@
 #include <Countdown.h>
 
 byte mac[] = {
-  0x00, 0xAA, 0xBB, 0xCC, 0xDE, 0x09
+  0x00, 0xAA, 0xBB, 0xCC, 0xDE, 0x08
 };
 
 const char* topic = "arduino1";
@@ -41,7 +41,7 @@ int tableSize = sizeof(*maxTableSize);
 void connect() {
   Serial.println("Connecting...");
   int port = 1883;
-  char hostname[] = "192.168.0.13";
+  char hostname[] = "192.168.0.12";
   int statusId = ipstack.connect(hostname, port);
   
   //************************************ONLINE/OFFLINE detecting code*********************************************************** 
@@ -68,6 +68,8 @@ void connect() {
   client.subscribe(topic, MQTT::QOS2, messageArrived);
   if(client.isConnected()) {
     Serial.println("Connected!");
+  } else {
+    Serial.println("Not yet connected...");
   }
 }
 
@@ -220,5 +222,5 @@ void setup() {
 void loop() {
   if (!client.isConnected())
     connect();
-  client.yield(1000);
+  client.yield(100);
 }
