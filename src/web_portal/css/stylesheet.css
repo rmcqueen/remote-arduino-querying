@@ -1,3 +1,24 @@
+/*.ifn-body {
+    color: #839496;
+    background-color: #002b36
+}*/
+.main-panel {
+    height: 100%;
+    border: 1px solid black;
+}
+
+.footer-panel {
+    padding: 20px;
+    color: #839496;
+    background-color: #002b36
+}
+
+.ifn-header {
+    height: 100px;
+    color: #839496;
+    background-color: #002b36
+}
+
 .textArea{
     margin: 0px -3.84375px 0px 0px;
     width: 300px;

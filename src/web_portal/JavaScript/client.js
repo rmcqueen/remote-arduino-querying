@@ -131,10 +131,10 @@ function send() {
     });
 	// Perform an AJAX request to the server for query parsing
     $.ajax({
-        url: "127.0.0.1:3000/publish_query",
+        url: "http:localhost:3000/publish_query",
         type: "get",
         data: {
-            query: userQuery,
+            queryString: userQuery,
             arduino: selectedArduinos
         },
 

@@ -19,8 +19,8 @@ byte mac[] = {
   0x00, 0xAA, 0xBB, 0xCC, 0xDE, 0x08
 };
 
-const char* topic = "arduino1";
-const char* outTopic = "query/Arduino1";
+const char* topic = "query/Arduino1";
+const char* outTopic = "result/Arduino1";
 int* ptrRecordCount; //TODO filthy hack, clean me
 int recordCount;
 //MQTT client setup 
@@ -185,6 +185,7 @@ void messageArrived(MQTT::MessageData& md) {
      char* input = malloc(sizeof(char) * strlen(fieldString)+1);
      strcpy(input,fieldString);
      createTable(tableName, input);
+     sendMessageToTopic("Table created");
     //printTableByName(tableName);
   }
 
@@ -199,6 +200,7 @@ void messageArrived(MQTT::MessageData& md) {
     char* input = malloc(sizeof(char) * strlen(fields)+1);
     strcpy(input,fields);
     insertInto(tableName, input);
+    sendMessageToTopic("Record inserted");
     Serial.println("Finished insert");
   }
 
