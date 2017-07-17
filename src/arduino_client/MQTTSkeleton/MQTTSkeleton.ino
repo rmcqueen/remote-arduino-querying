@@ -123,7 +123,6 @@ void insertInto(char* tableName, char* tuple) {
   table->insert(*ptrRecordCount, tuple);
   Serial.println("Record inserted...");
   *ptrRecordCount =  *ptrRecordCount + 1;
-  Serial.println("Finsished insert");
 }
 
 char* selectAll(char* tableName) {
@@ -133,7 +132,7 @@ char* selectAll(char* tableName) {
     char* value = my_cursor->getValue();
     result = realloc(result,(sizeof(char) * (strlen(value) + strlen(result))+1));
     strcat(result,"\n");
-    strcat(result,value);
+    strcat(result, value);
   }
   delete my_cursor;
   return result;
@@ -209,7 +208,8 @@ void messageArrived(MQTT::MessageData& md) {
 
   // select from table
   if((String) opCode == "s") {
-    char * result = selectAll(tableName);
+    char *result = selectAll(tableName);
+    Serial.println(result);
     sendMessageToTopic(result);
     free(result);
   }
