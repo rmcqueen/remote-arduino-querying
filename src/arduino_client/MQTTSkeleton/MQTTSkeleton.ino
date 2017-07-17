@@ -16,7 +16,7 @@
 #include <Countdown.h>
 
 byte mac[] = {
-  0x00, 0xAA, 0xBB, 0xCC, 0xDE, 0x08
+  0x00, 0xAA, 0xBB, 0xCC, 0xDE, 0x05
 };
 
 const char* topic = "query/Arduino1";
@@ -79,7 +79,7 @@ int createTable(char* tableName, char* fieldString) {
   // init dictionary
    Dictionary < int, ion_value_t > *table = new SkipList < int, ion_value_t > (key_type_numeric_signed, sizeof(int), sizeof(ion_value_t), 3);
    table->insert(1, tableName);
-   table->insert(2,fieldString);
+   table->insert(2, fieldString);
   
   // save table in memory
   Dictionary< int, ion_value_t> *tableCache = malloc(tableSize);
@@ -118,7 +118,10 @@ void describeTable(char* tableName) {
 
 void insertInto(char* tableName, char* tuple) {
   Dictionary < int, ion_value_t > *table = ((Dictionary < int, ion_value_t >*) tables->get(stringToInt(tableName)));
-  table->insert(*ptrRecordCount,tuple);
+  Serial.println("Table gotten");
+  Serial.println(tuple);
+  table->insert(*ptrRecordCount, tuple);
+  Serial.println("Record inserted...");
   *ptrRecordCount =  *ptrRecordCount + 1;
   Serial.println("Finsished insert");
 }
@@ -198,7 +201,7 @@ void messageArrived(MQTT::MessageData& md) {
   if((String) opCode == "i") {
     char* fields = root["query"]["fields"];
     char* input = malloc(sizeof(char) * strlen(fields)+1);
-    strcpy(input,fields);
+    strcpy(input, fields);
     insertInto(tableName, input);
     sendMessageToTopic("Record inserted");
     Serial.println("Finished insert");
