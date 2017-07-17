@@ -13,3 +13,4 @@
  - Arduino failing to connect? Make sure your the hostname variable used is your ip4 address
  - The same Arduino sometime works and sometimes doesnt? Try changing your mac addres declared a little bit - the router may still think its in use from a previous run
  - MQTT communications not playing nice in general? Use the config/moquette.conf as your moquette configuration
+ - Arduino IDE versions that are < 1.8.3 throw static analysis exceptions for a void pointer being unable to convert to a char pointer. Untested in early versions of 1.8.X
