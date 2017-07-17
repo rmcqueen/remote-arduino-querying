@@ -8,7 +8,7 @@ const port = 8080;
 var connectedClients = [];
 
 // Create a client instance
-var client = new Paho.MQTT.Client(hostname, Number(port), "clientId");
+var client = new Paho.MQTT.Client(hostname, Number(port), "web_portal");
 
 // set callback handlers
 client.onConnectionLost = onConnectionLost;
@@ -29,10 +29,11 @@ client.connect({
 * available to be picked from, and the queries results that are being sent back
 */
 function onConnect() {
+    console.log('Connected!');
     client.subscribe("status/#", {
         qos: 2
     });
-    client.subscribe("query/#", {
+    client.subscribe("result/#", {
         qos: 2
     });
 }
@@ -79,7 +80,7 @@ function onMessageArrived(message) {
         }
     }
 
-    if (destination == "query") {
+    if (destination == "result") {
         displayResults(clientId, message.payloadString);
         fillProgressBar(1, 100);
     } else {
@@ -128,16 +129,19 @@ function send() {
             selectedArduinos.push(this.id);
         }
     });
+
 	// Perform an AJAX request to the server for query parsing
     $.ajax({
-        url: "127.0.0.1:3000/publish_query",
+        url: "http:localhost:3000/publish_query",
         type: "get",
         data: {
-            query: userQuery,
-            arduino: selectedArduinos
+            queryString: userQuery,
+            targets: selectedArduinos
         },
 
         success: function(result) {
+            displayResults(clientId, result);
+            fillProgressBar(1, 100);
             if (userQuery != "") {
                 $("#successBox").show();
                 $("#successBox").fadeOut(3000);
@@ -228,10 +232,10 @@ function removeCheckboxes(name) {
 * should show what values were requsted in the database (if they exist)
 */
 function displayResults(clientId, message) {
-    if (clientId) {
-        $("#resultArea").val("Results from " + clientId + ": " + message);
-        appendcsvInputData("\n" + clientId + ":\n" + message);
-    }
+    const newResultEntry = `${clientId}: {csv: ${message}},`
+    const currentResultString = $('#resultArea').text();
+    $("#resultArea").val(`${newResultEntry}${currentResultString}`);
+    appendcsvInputData("\n" + clientId + ":\n" + message);
 }
 
 /*
