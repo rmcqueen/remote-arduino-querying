@@ -33,7 +33,7 @@ function onConnect() {
     client.subscribe("status/#", {
         qos: 2
     });
-    client.subscribe("query/#", {
+    client.subscribe("result/#", {
         qos: 2
     });
 }
@@ -133,22 +133,21 @@ function send() {
 	// Perform an AJAX request to the server for query parsing
     $.ajax({
         url: "http:localhost:3000/publish_query",
-        type: "GET",
+        type: "get",
         data: {
             queryString: userQuery,
             targets: selectedArduinos
         },
-        aync: false,
+
         success: function(result) {
-            console.log("Request completed");
-            console.log(result);
-            // displayResults(result);
-            // fillProgressBar(1, 100);
-            // if (userQuery != "") {
-            //     $("#successBox").show();
-            //     $("#successBox").fadeOut(3000);
-            //     fillProgressBar(1, 33);
-            // }
+            displayResults(clientId, result);
+            fillProgressBar(1, 100);
+            if (userQuery != "") {
+                $("#successBox").show();
+                $("#successBox").fadeOut(3000);
+                fillProgressBar(1, 33);
+            }
+
         }
     });
 }
@@ -232,9 +231,11 @@ function removeCheckboxes(name) {
 * @param string message the payloadString that was obtained from the user's query
 * should show what values were requsted in the database (if they exist)
 */
-function displayResults(results) {
-    $("#resultArea").val(results);
-    appendcsvInputData(`\n${results}`);
+function displayResults(clientId, message) {
+    const newResultEntry = `${clientId}: {csv: ${message}},`
+    const currentResultString = $('#resultArea').text();
+    $("#resultArea").val(`${newResultEntry}${currentResultString}`);
+    appendcsvInputData("\n" + clientId + ":\n" + message);
 }
 
 /*

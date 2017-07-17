@@ -1,5 +1,5 @@
 module.exports = sql => {
-  const tableName = sql.split('CREATE TABLE ')[1].split(' ')[0];
+  const tableName = sql.split('CREATE TABLE ')[1].split('(')[0];
   const fieldString = sql.split('(')[1].split(')')[0].split(', ').join(',');
 
   function compressFields(fieldString) {
