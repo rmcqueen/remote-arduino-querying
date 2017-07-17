@@ -80,7 +80,7 @@ function onMessageArrived(message) {
         }
     }
 
-    if (destination == "query") {
+    if (destination == "result") {
         displayResults(clientId, message.payloadString);
         fillProgressBar(1, 100);
     } else {
@@ -129,22 +129,26 @@ function send() {
             selectedArduinos.push(this.id);
         }
     });
+
 	// Perform an AJAX request to the server for query parsing
     $.ajax({
         url: "http:localhost:3000/publish_query",
-        type: "get",
+        type: "GET",
         data: {
             queryString: userQuery,
-            arduino: selectedArduinos
+            targets: selectedArduinos
         },
-
+        aync: false,
         success: function(result) {
-            if (userQuery != "") {
-                $("#successBox").show();
-                $("#successBox").fadeOut(3000);
-                fillProgressBar(1, 33);
-            }
-
+            console.log("Request completed");
+            console.log(result);
+            // displayResults(result);
+            // fillProgressBar(1, 100);
+            // if (userQuery != "") {
+            //     $("#successBox").show();
+            //     $("#successBox").fadeOut(3000);
+            //     fillProgressBar(1, 33);
+            // }
         }
     });
 }
@@ -228,11 +232,9 @@ function removeCheckboxes(name) {
 * @param string message the payloadString that was obtained from the user's query
 * should show what values were requsted in the database (if they exist)
 */
-function displayResults(clientId, message) {
-    if (clientId) {
-        $("#resultArea").val("Results from " + clientId + ": " + message);
-        appendcsvInputData("\n" + clientId + ":\n" + message);
-    }
+function displayResults(results) {
+    $("#resultArea").val(results);
+    appendcsvInputData(`\n${results}`);
 }
 
 /*

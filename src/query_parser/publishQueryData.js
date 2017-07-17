@@ -4,7 +4,7 @@ const { parseCreateTable, parseDescribe, parseInsert, parseSelect } = require('.
 const Promise = require("bluebird");
 
 module.exports = (queryString, targets) => {
-  return Promise.map(targets, target => {
+  return Promise.each(targets, target => {
     return new Promise((resolve, reject) => {
       const operationType = getOperationType(queryString);
       const parse = getQueryParser(operationType);
@@ -36,7 +36,7 @@ module.exports = (queryString, targets) => {
       function publishQueryData(queryData) {
         const client  = mqtt.connect('http://localhost:1883');
         client.on('connect', function () {
-          client.subscribe('arduino1')
+          client.subscribe(`result/${target}`);
           client.publish(`query/${target}`, queryData, { qos:2, retain:false });
           console.log("published " + queryData);
         })

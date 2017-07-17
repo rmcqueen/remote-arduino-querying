@@ -10,7 +10,7 @@ module.exports = (app) => {
   app.get('/publish_query', (req, res) => {
     console.log(req.query);
     const queryString = req.query.queryString;
-    const targets =  req.quer.targets;
+    const targets =  req.query.targets;
     publishQueryData(queryString, targets)
       .then(result => res.send(result));
   });
