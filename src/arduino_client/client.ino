@@ -126,7 +126,8 @@ void insertInto(char* tableName, char* tuple) {
 
 char* selectAll(char* tableName) {
    Cursor< int, void* > *my_cursor = ((Dictionary < int, ion_value_t >*) tables->get(stringToInt(tableName)))->allRecords();
-   char* result = malloc(sizeof(char));
+   char* result = (char*) malloc(1);
+   result[0] = '\0';
    while (my_cursor->next()) {
     char* value = my_cursor->getValue();
     result = realloc(result,(sizeof(char) * (strlen(value) + strlen(result))+1));
@@ -134,6 +135,7 @@ char* selectAll(char* tableName) {
     strcat(result, value);
   }
   delete my_cursor;
+  Serial.println(result);
   return result;
 }
 
@@ -206,7 +208,7 @@ void messageArrived(MQTT::MessageData& md) {
   // select from table
   if((String) opCode == "s") {
     char *result = selectAll(tableName);
-    Serial.println(result);
+    //Serial.println(result);
     sendMessageToTopic(result);
     free(result);
   }
