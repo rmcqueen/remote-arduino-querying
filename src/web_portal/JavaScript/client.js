@@ -3,8 +3,8 @@
  */
 
 // network variables
-const hostname = "127.0.0.1";
-const port = 8080;
+const hostname = "192.168.1.4";
+const port = 1884;
 var connectedClients = [];
 
 // Create a client instance
@@ -30,6 +30,9 @@ client.connect({
 */
 function onConnect() {
     console.log('Connected!');
+    document.getElementById("statusBox").innerHTML = "Connected";
+    document.getElementById("statusBox").className = "label alert-success";
+
     client.subscribe("status/#", {
         qos: 2
     });
@@ -50,6 +53,8 @@ function onConnectionLost(responseObject) {
     if (responseObject.errorCode !== 0) {
         console.log("onConnectionLost:" + responseObject.errorMessage);
     }
+    document.getElementById("statusBox").innerHTML = "Disconnected";
+    document.getElementById("statusBox").className = "label label-warning";
 }
 
 
