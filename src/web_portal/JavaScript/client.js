@@ -3,7 +3,7 @@
  */
 
 // network variables
-const hostname = "192.168.1.4";
+const hostname = "192.168.1.10";
 const port = 1884;
 var connectedClients = [];
 
@@ -30,8 +30,9 @@ client.connect({
 */
 function onConnect() {
     console.log('Connected!');
-    document.getElementById("statusBox").innerHTML = "Connected";
-    document.getElementById("statusBox").className = "label alert-success";
+
+    $("#statusBox").html("Connected");
+    $('#statusBox').attr("class", "label alert-success");
 
     client.subscribe("status/#", {
         qos: 2
@@ -53,8 +54,9 @@ function onConnectionLost(responseObject) {
     if (responseObject.errorCode !== 0) {
         console.log("onConnectionLost:" + responseObject.errorMessage);
     }
-    document.getElementById("statusBox").innerHTML = "Disconnected";
-    document.getElementById("statusBox").className = "label label-warning";
+
+    $("#statusBox").html("Disconnected");
+    $('#statusBox').attr("class", "label label-warning");
 }
 
 
