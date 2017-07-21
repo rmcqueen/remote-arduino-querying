@@ -3,8 +3,8 @@
  */
 
 // network variables
-const hostname = "192.168.1.10";
-const port = 1884;
+const hostname = "127.0.0.1";
+const port = 8080;
 var connectedClients = [];
 
 // Create a client instance
@@ -88,8 +88,7 @@ function onMessageArrived(message) {
     }
 
     if (destination == "result") {
-        const deleteBoxBug =  message.payloadString.slice(0, -1);
-        displayResults(clientId, deleteBoxBug);
+        displayResults(clientId, message.payloadString);
         fillProgressBar(1, 100);
     } else {
         console.log("No results");
