@@ -86,7 +86,8 @@ function onMessageArrived(message) {
     }
 
     if (destination == "result") {
-        displayResults(clientId, message.payloadString);
+        const deleteBoxBug =  message.payloadString.slice(0, -1);
+        displayResults(clientId, deleteBoxBug);
         fillProgressBar(1, 100);
     } else {
         console.log("No results");
@@ -134,19 +135,16 @@ function send() {
             selectedArduinos.push(this.id);
         }
     });
-
 	// Perform an AJAX request to the server for query parsing
     $.ajax({
-        url: "http:localhost:3000/publish_query",
+        url: "http://localhost:3000/publish_query",
         type: "get",
         data: {
             queryString: userQuery,
             targets: selectedArduinos
         },
 
-        success: function(result) {
-            displayResults(clientId, result);
-            fillProgressBar(1, 100);
+        complete: function(result) {
             if (userQuery != "") {
                 $("#successBox").show();
                 $("#successBox").fadeOut(3000);
@@ -234,7 +232,7 @@ function removeCheckboxes(name) {
 * came from
 *
 * @param string message the payloadString that was obtained from the user's query
-* should show what values were requsted in the database (if they exist)
+* should show what values were requested in the database (if they exist)
 */
 function displayResults(clientId, message) {
     const newResultEntry = `${clientId}: {csv: ${message}},`
