@@ -3,8 +3,8 @@
  */
 
 // network variables
-const hostname = "192.168.1.4";
-const port = 1884;
+const hostname = "127.0.0.1";
+const port = 8080;
 var connectedClients = [];
 
 // Create a client instance
@@ -30,8 +30,9 @@ client.connect({
 */
 function onConnect() {
     console.log('Connected!');
-    document.getElementById("statusBox").innerHTML = "Connected";
-    document.getElementById("statusBox").className = "label alert-success";
+
+    $("#statusBox").html("Connected");
+    $('#statusBox').attr("class", "label alert-success");
 
     client.subscribe("status/#", {
         qos: 2
@@ -43,18 +44,19 @@ function onConnect() {
 
 
 /*
-* Purpose: if a connection is lost to the broker, print the error message to the
-* console to inform the user what caused the issue.
-*
-* @param Object responseObject a response indicating what went wrong with the
-* request
-*/
+ * Purpose: if a connection is lost to the broker, print the error message to the
+ * console to inform the user what caused the issue.
+ *
+ * @param Object responseObject a response indicating what went wrong with the
+ * request
+ */
 function onConnectionLost(responseObject) {
     if (responseObject.errorCode !== 0) {
         console.log("onConnectionLost:" + responseObject.errorMessage);
     }
-    document.getElementById("statusBox").innerHTML = "Disconnected";
-    document.getElementById("statusBox").className = "label label-warning";
+
+    $("#statusBox").html("Disconnected");
+    $('#statusBox').attr("class", "label label-warning");
 }
 
 
