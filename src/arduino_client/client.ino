@@ -135,7 +135,6 @@ char* selectAll(char* tableName) {
     strcat(result, value);
   }
   delete my_cursor;
-  Serial.println(result);
   return result;
 }
 
