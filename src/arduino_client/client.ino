@@ -208,7 +208,6 @@ void messageArrived(MQTT::MessageData& md) {
   // select from table
   if((String) opCode == "s") {
     char *result = selectAll(tableName);
-    //Serial.println(result);
     sendMessageToTopic(result);
     free(result);
   }
