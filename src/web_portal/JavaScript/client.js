@@ -145,15 +145,11 @@ function send() {
             targets: selectedArduinos
         },
 
-        complete: function(result) {
-            if (userQuery != "") {
-                $("#successBox").show();
-                $("#successBox").fadeOut(3000);
-                fillProgressBar(1, 33);
-            }
-
-        }
+      
     });
+    $("#successBox").show();
+    $("#successBox").fadeOut(3000);
+    fillProgressBar(1, 33);
 }
 
 
