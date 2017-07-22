@@ -1,0 +1,20 @@
+In Arduino unit test mode, the file B_Connect must have these parts commented out:
+/*
+void setup() {
+  Serial.begin(9600);
+  Ethernet.begin(mac);  
+  connect();
+  recordCount = 3;
+  ptrRecordCount = &recordCount;
+}
+
+void loop() {
+  if (!client.isConnected())
+    connect();
+  client.yield(100);
+}
+*/
+
+Also, E_UnitTest's Complete code will be un-commented.
+After development/modifications, to prevent excess CPU usage the opposite setup would be used for general usage. 
+
