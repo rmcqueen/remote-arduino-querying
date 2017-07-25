@@ -41,7 +41,7 @@ int recordCount;
 int connect() {
   Serial.println("Connecting...");
   int port = 1883;
-  char hostname[] = "192.168.0.17"; // CHANGE ME TO YOUR HOSTNAME
+  char hostname[] = "192.168.0.12"; // CHANGE ME TO YOUR HOSTNAME
   ipstack.connect(hostname, port);
  
   
@@ -144,11 +144,13 @@ char* selectAll(char* tableName) {
   char* value;
   while (my_cursor->next()) {
     if(recordsBuffered == maxRecordsPerPage) {
+      Serial.println("Sending page...");
       value = ";EOP";
       result = realloc(result,(sizeof(char) * (strlen(value) + strlen(result))+1));
       strcat(result,"\n");
       strcat(result, value);
       sendMessageToTopic(result);
+      delay(500);
       result = malloc(1);
       result[0] = '\0';
       recordsBuffered = 0;
@@ -190,6 +192,7 @@ void printTableByName(char* tableName) {
 }
 
 void sendMessageToTopic(char* result) {
+  printf("Sending %s to %s\n", result, outTopic);
   MQTT::Message message;
   message.qos = MQTT::QOS2;
   message.retained = false;
@@ -240,9 +243,7 @@ int messageArrived(MQTT::MessageData& md) {
 
   // select from table
   if((String) opCode == "s") {
-    char *result = selectAll(tableName);
-    sendMessageToTopic(result);
-    free(result);
+    selectAll(tableName);
     return 2;
   }
   return -1;
