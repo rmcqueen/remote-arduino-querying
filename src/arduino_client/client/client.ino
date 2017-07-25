@@ -17,7 +17,7 @@
 
 //Network
 byte mac[] = {
-  0x00, 0xAA, 0xBB, 0xCC, 0xDE, 0x05
+  0x00, 0xAA, 0xBB, 0xCC, 0xDE, 0x04
 };
 EthernetClient c;
 IPStack ipstack(c);
@@ -220,7 +220,7 @@ int messageArrived(MQTT::MessageData& md) {
      char* input = malloc(sizeof(char) * strlen(fieldString)+1);
      strcpy(input,fieldString);
      createTable(tableName, input);
-     sendMessageToTopic("Table created");
+     sendMessageToTopic("Table created;EOR");
      return 0;
   }
 
@@ -236,7 +236,7 @@ int messageArrived(MQTT::MessageData& md) {
     char* input = malloc(sizeof(char) * strlen(fields)+1);
     strcpy(input, fields);
     insertInto(tableName, input);
-    sendMessageToTopic("Record inserted");
+    sendMessageToTopic("Record inserted;EOR");
     Serial.println("Finished insert");
      return 1;
   }
