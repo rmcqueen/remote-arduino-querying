@@ -6,12 +6,9 @@ test(connectTest)
 }
 
 test(createTable)
-{
-
-  //*********TODO Test for table that is invalid/already created*********
-  
+{ 
    //single column
-  createTable("test1","name:s;");
+  assertNotEqual(createTable("test1","name:s;"),-1);
   char * table1 = (char*) ((Dictionary < int, ion_value_t >*) tables->get(stringToInt("test1")))->get(1);
   char * fieldString1 = (char*) ((Dictionary < int, ion_value_t >*) tables->get(stringToInt("test1")))->get(2);
 
@@ -21,7 +18,7 @@ test(createTable)
 
   
   //multiColumn
-  createTable("test2","name:s;age:i;");
+  assertNotEqual(createTable("test2","name:s;age:i;"),-1);
   char* table2 = (char*) ((Dictionary < int, ion_value_t >*) tables->get(stringToInt("test2")))->get(1);
   char* fieldString2 = (char*) ((Dictionary < int, ion_value_t >*) tables->get(stringToInt("test2")))->get(2);
 
@@ -29,25 +26,28 @@ test(createTable)
   assertEqual("test2",table2);
   assertEqual("name:s;age:i;",fieldString2);
 
+  //duplicate table creation
+  assertEqual(createTable("test1","name:s;"),-1);
+  
   delete ((Dictionary < int, ion_value_t >*) tables->get(stringToInt("test1")));
   delete ((Dictionary < int, ion_value_t >*) tables->get(stringToInt("test2")));
 }
 
 test(insertInto) {
+     //TODO*********insert invalid value*********
+      
      //Non existant table
      assertEqual(-1,insertInto("tab","value"));
-
-     //TODO*********insert invalid value*********
      
      createTable("test","name:s;");
-     insertInto("test","TEST TUPLE1");
-     insertInto("test","TEST TUPLE2");
+     insertInto("test","nameTest1:name;");
+     insertInto("test","nameTest2:name;");
     
      char * tuple1 = (char*) ((Dictionary < int, ion_value_t >*) tables->get(stringToInt("test")))->get(3);
      char * tuple2 = (char*) ((Dictionary < int, ion_value_t >*) tables->get(stringToInt("test")))->get(4);
 
-     assertEqual("TEST TUPLE1",tuple1);
-     assertEqual("TEST TUPLE2",tuple2);
+     assertEqual("nameTest1:name;",tuple1);
+     assertEqual("nameTest2:name;",tuple2);
 
      delete ((Dictionary < int, ion_value_t >*) tables->get(stringToInt("test")));
 }
@@ -68,7 +68,9 @@ test(selectAll) {
     assertEqual("\ntest3\nname:s;\nthis is\na multi\ntuple test\nand it passes",selectAll("test3"));
 
     //Test invalid table
-    assertEqual("INVALID",selectAll("tab"));
+    assertEqual("-1",selectAll("tab"));
+
+    delete ((Dictionary < int, ion_value_t >*) tables->get(stringToInt("test3")));
 }
 
 test(messageArrived) {
@@ -110,9 +112,7 @@ void setup() {
 
 
 void loop() {
-  if (!client.isConnected())
-    connect();
-    Test::run();
+  Test::run();
   client.yield(100);
 }
 

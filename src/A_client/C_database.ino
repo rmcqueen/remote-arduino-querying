@@ -1,5 +1,8 @@
 int createTable(char* tableName, char* fieldString) {
   Serial.println("createTable called");
+  tables->get(stringToInt(tableName));
+  if(!(err_item_not_found == tables->last_status.error))
+     return -1;
 
   // init dictionary
    Dictionary < int, ion_value_t > *table = new SkipList < int, ion_value_t > (key_type_numeric_signed, sizeof(int), sizeof(ion_value_t), 3);
@@ -12,6 +15,7 @@ int createTable(char* tableName, char* fieldString) {
   memcpy(tableCache, table, sizeof(*table));
   tables->insert(stringToInt(tableName), tableCache);
   Serial.println("Finished creating table");
+  return 0;
 }
 
 Dictionary < int, ion_value_t>* getTableByName(char* tableName) {
@@ -41,10 +45,9 @@ void describeTable(char* tableName) {
 } 
 
 int insertInto(char* tableName, char* tuple) {
-  tables->get(stringToInt(tableName));
-   if(err_item_not_found == tables->last_status.error)
-      return -1;
   Dictionary < int, ion_value_t > *table = ((Dictionary < int, ion_value_t >*) tables->get(stringToInt(tableName)));
+  if(err_item_not_found == tables->last_status.error)
+     return -1;
   Serial.println("Table gotten");
   Serial.println(tuple);
   table->insert(*ptrRecordCount, tuple);
@@ -54,10 +57,10 @@ int insertInto(char* tableName, char* tuple) {
 }
 
 char* selectAll(char* tableName) {
-   tables->get(stringToInt(tableName));
+   Dictionary < int, ion_value_t > *table = ((Dictionary < int, ion_value_t >*) tables->get(stringToInt(tableName)));
    if(err_item_not_found == tables->last_status.error)
-      return "INVALID";
-   Cursor< int, void* > *my_cursor = ((Dictionary < int, ion_value_t >*) tables->get(stringToInt(tableName)))->allRecords();
+      return "-1";
+   Cursor< int, void* > *my_cursor = table->allRecords();
    char* result = (char*) malloc(1);
    result[0] = '\0';
    while (my_cursor->next()) {
