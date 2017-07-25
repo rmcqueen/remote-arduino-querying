@@ -4,7 +4,7 @@ const { parseCreateTable, parseDescribe, parseInsert, parseSelect } = require('.
 const Promise = require("bluebird");
 
 module.exports = (queryString, targets) => {
-  return Promise.each(targets, target => {
+  return Promise.map(targets, target => {
     return new Promise((resolve, reject) => {
       const operationType = getOperationType(queryString);
       const parse = getQueryParser(operationType);
@@ -49,7 +49,7 @@ module.exports = (queryString, targets) => {
           if (message.indexOf(';EOR') !== -1) {
             client.end();
             console.log(`results received: ${message}`);
-            return resolve(`results received: ${message}`); 
+            return resolve({ [target]: message });
           }
         })
       }
