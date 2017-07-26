@@ -24,8 +24,8 @@ IPStack ipstack(c);
 
 
 //MQTT 
-const char* topic = "query/Arduino1";
-const char* outTopic = "result/Arduino1";
+const char* topic = "query/Arduino4";
+const char* outTopic = "result/Arduino4";
 const int MAX_MQTT_PACKET_SIZE = 512;
 MQTT::Client<IPStack, Countdown, MAX_MQTT_PACKET_SIZE> client = MQTT::Client<IPStack, Countdown, MAX_MQTT_PACKET_SIZE>(ipstack);
 
@@ -41,7 +41,7 @@ int recordCount;
 int connect() {
   Serial.println("Connecting...");
   int port = 1883;
-  char hostname[] = "192.168.0.12"; // CHANGE ME TO YOUR HOSTNAME
+  char hostname[] = "192.168.1.4"; // CHANGE ME TO YOUR HOSTNAME
   ipstack.connect(hostname, port);
  
   
@@ -63,7 +63,7 @@ int connect() {
   message.retained = true;
   message.payload = (void*)buf;
   message.payloadlen = strlen(buf);
-  client.publish("status/Arduino1", message);      
+  client.publish("status/Arduino4", message);      
   client.subscribe(topic, MQTT::QOS2, messageArrived);
   if(client.isConnected()) {
     Serial.println("Connected!");
