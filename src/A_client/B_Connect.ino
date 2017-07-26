@@ -1,6 +1,6 @@
 //Network
 byte mac[] = {
-  0x00, 0xAA, 0xBB, 0xCC, 0xDE, 0x05
+  0x00, 0xAA, 0xBB, 0xCC, 0xDE, 0x02
 };
 EthernetClient c;
 IPStack ipstack(c);
@@ -24,7 +24,7 @@ int recordCount;
 int connect() {
   Serial.println("Connecting...");
   int port = 1883;
-  char hostname[] = "192.168.1.100"; // CHANGE ME TO YOUR HOSTNAME
+  char hostname[] = "192.168.1.65"; // CHANGE ME TO YOUR HOSTNAME
   ipstack.connect(hostname, port);
  
   
@@ -42,7 +42,7 @@ int connect() {
   char buf[128];
   sprintf(buf,"online");
   MQTT::Message message;
-  message.qos = MQTT::QOS2;
+  message.qos = 2;
   message.retained = true;
   message.payload = (void*)buf;
   message.payloadlen = strlen(buf);
@@ -58,7 +58,7 @@ int connect() {
 }
 
 // main
-/*
+
 void setup() {
   Serial.begin(9600);
   Ethernet.begin(mac);  
@@ -72,5 +72,4 @@ void loop() {
     connect();
   client.yield(100);
 }
-*/
 

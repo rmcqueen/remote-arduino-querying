@@ -1,3 +1,4 @@
+/*
 #line 2 "A_client.ino"
 test(connectTest) 
 {
@@ -9,6 +10,10 @@ test(createTable)
 { 
    //single column
   assertNotEqual(createTable("test1","name:s;"),-1);
+  
+  //duplicate table creation
+  assertEqual(createTable("test1","name:s;"),-1);
+  
   char * table1 = (char*) ((Dictionary < int, ion_value_t >*) tables->get(stringToInt("test1")))->get(1);
   char * fieldString1 = (char*) ((Dictionary < int, ion_value_t >*) tables->get(stringToInt("test1")))->get(2);
 
@@ -25,10 +30,7 @@ test(createTable)
   //multiColumn test
   assertEqual("test2",table2);
   assertEqual("name:s;age:i;",fieldString2);
-
-  //duplicate table creation
-  assertEqual(createTable("test1","name:s;"),-1);
-  
+   
   delete ((Dictionary < int, ion_value_t >*) tables->get(stringToInt("test1")));
   delete ((Dictionary < int, ion_value_t >*) tables->get(stringToInt("test2")));
 }
@@ -40,8 +42,8 @@ test(insertInto) {
      assertEqual(-1,insertInto("tab","value"));
      
      createTable("test","name:s;");
-     insertInto("test","nameTest1:name;");
-     insertInto("test","nameTest2:name;");
+     assertNotEqual(-1,insertInto("test","nameTest1:name;"));
+     assertNotEqual(-1,insertInto("test","nameTest2:name;"));
     
      char * tuple1 = (char*) ((Dictionary < int, ion_value_t >*) tables->get(stringToInt("test")))->get(3);
      char * tuple2 = (char*) ((Dictionary < int, ion_value_t >*) tables->get(stringToInt("test")))->get(4);
@@ -115,4 +117,5 @@ void loop() {
   Test::run();
   client.yield(100);
 }
+*/
 
