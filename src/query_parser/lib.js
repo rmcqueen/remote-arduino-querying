@@ -1,13 +1,19 @@
 const { flatten } = require('lodash');
 
+const dataTypeMapping = {
+  i: 'int',
+  s: 'String',
+}
+
 function getResultSetAttributes(resultSet) {
   const schemaString = resultSet[0].entries.split('\n')[1]; // Assumes pages remained serialized for each client. 
   const attributes = schemaString.split(';') // tokenize compressed schema elements
     .filter((val, idx, arr) => idx < arr.length - 1) // remove junk element caused by terminal ;
     .reduce((acc, attribute) => { // reduce the tokens to a single mapping of attribute name to data type
       const [ attrName, attrType ] = attribute.split(':');
-      return Object.assign(acc, { [attrName]: attrType });
+      return Object.assign(acc, { [attrName]: dataTypeMapping[attrType] });
   }, {});
+    return attributes;
 }
 
 function buildClientTuplePages(resultSet) {
