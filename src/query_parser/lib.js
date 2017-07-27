@@ -1,4 +1,5 @@
 const { flatten } = require('lodash');
+const { parseCreateTable, parseDescribe, parseInsert, parseSelect } = require('./parsers')
 
 const dataTypeMapping = {
   i: 'int',
