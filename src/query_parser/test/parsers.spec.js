@@ -1,4 +1,5 @@
-const { parseCreateTable, parseDescribe, parseInsert, parseSelect } = require('./parsers');
+const { expect } = require('chai');
+const { parseCreateTable, parseDescribe, parseInsert, parseSelect } = require('../parsers');
 
 const createTable = 'CREATE TABLE team(name string, age int);';
 const insertInto = 'INSERT INTO team(name, age) VALUES(spencer, 24);';
