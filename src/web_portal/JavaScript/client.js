@@ -142,7 +142,7 @@ function send() {
         type: "get",
         data: {
             queryString: userQuery,
-            targets: selectedArduinos,
+            targets: selectedArduinos
         },
         success: function(responseData) {
             console.log(responseData);
