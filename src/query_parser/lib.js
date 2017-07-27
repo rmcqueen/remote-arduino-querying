@@ -73,8 +73,11 @@ function groupTuplePagesByClient(clientTuplePages) {
 
 function parseResultSet(resultSet) {
   const attributes = getResultSetAttributes(resultSet);
+  console.log(attributes);
   const clientTuplePages = buildClientTuplePages(resultSet);
+  console.log(clientTuplePages);
   const clientTuples = groupTuplePagesByClient(clientTuplePages);
+  console.log(clientTuples);
   return {
     attributes: attributes,
     clientTuples: clientTuples,
