@@ -1,5 +1,6 @@
 const mqtt = require('mqtt')
 const url = require('url');
+const { getOperationType, getQueryParser } = lib.js
 const { parseCreateTable, parseDescribe, parseInsert, parseSelect } = require('./parsers')
 const Promise = require("bluebird");
 
@@ -11,26 +12,6 @@ module.exports = (queryString, targets) => {
       const queryJson = JSON.stringify({ op_code: operationType[0].toLowerCase(), query: parse(queryString)});
 
       return publishQueryData(queryJson);
-
-      function getOperationType(queryString) {
-        const operations = ['CREATE', 'SELECT', 'INSERT', 'DESCRIBE'];
-        return operations.filter(operation => queryString.split()[0].indexOf(operation) === 0)[0];
-      }
-
-      function getQueryParser(operationType) {
-        switch(getOperationType(operationType)) {
-          case 'CREATE':
-            return parseCreateTable;
-          case 'DESCRIBE':
-            return parseDescribe;
-          case 'SELECT':
-            return parseSelect
-          case 'INSERT':
-            return parseInsert;
-          default:
-            return new Error('Could not resolve operation type');
-        }
-      }
 
       //TODO: Set publish topic based on "arduino: selectedArduinos" from get request
       function publishQueryData(queryData) {
@@ -55,7 +36,6 @@ module.exports = (queryString, targets) => {
       }
     });
   })
-
 }
 
 

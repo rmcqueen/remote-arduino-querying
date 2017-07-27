@@ -5,6 +5,26 @@ const dataTypeMapping = {
   s: 'String',
 }
 
+function getOperationType(queryString) {
+  const operations = ['CREATE', 'SELECT', 'INSERT', 'DESCRIBE'];
+  return operations.filter(operation => queryString.split()[0].indexOf(operation) === 0)[0];
+}
+
+function getQueryParser(operationType) {
+  switch(getOperationType(operationType)) {
+    case 'CREATE':
+      return parseCreateTable;
+    case 'DESCRIBE':
+      return parseDescribe;
+    case 'SELECT':
+      return parseSelect
+    case 'INSERT':
+      return parseInsert;
+    default:
+      return new Error('Could not resolve operation type');
+  }
+}
+
 function getResultSetAttributes(resultSet) {
   const schemaString = resultSet[0].entries.split('\n')[1]; // Assumes pages remained serialized for each client. 
   const attributes = schemaString.split(';') // tokenize compressed schema elements
@@ -41,7 +61,7 @@ function buildClientTuplePages(resultSet) {
   return clientTuplePages;
 }
 
-function groupleTuplePagesByClient(clientTuplePages) {
+function groupTuplePagesByClient(clientTuplePages) {
   return clientTuplePages.reduce((acc, clientTuplePage) => {
     const pageClient = clientTuplePage.client;
     const currentClientTuples = acc[pageClient] ? acc[pageClient] : [];
@@ -54,7 +74,7 @@ function groupleTuplePagesByClient(clientTuplePages) {
 function parseResultSet(resultSet) {
   const attributes = getResultSetAttributes(resultSet);
   const clientTuplePages = buildClientTuplePages(resultSet);
-  const clientTuples = groupleTuplePagesByClient(clientTuplePages);
+  const clientTuples = groupTuplePagesByClient(clientTuplePages);
   return {
     attributes: attributes,
     clientTuples: clientTuples,
@@ -62,8 +82,10 @@ function parseResultSet(resultSet) {
 }
 
 module.exports = {
+  getOperationType,
+  getQueryParser,
   getResultSetAttributes,
   buildClientTuplePages,
-  groupleTuplePagesByClient,
+  groupTuplePagesByClient,
   parseResultSet,
 }
