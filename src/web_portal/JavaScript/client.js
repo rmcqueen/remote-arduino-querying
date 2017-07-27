@@ -142,16 +142,13 @@ function send() {
         type: "get",
         data: {
             queryString: userQuery,
-            targets: selectedArduinos
+            targets: selectedArduinos,
         },
-
-        complete: function(result) {
-            if (userQuery != "") {
-                $("#successBox").show();
-                $("#successBox").fadeOut(3000);
-                fillProgressBar(1, 33);
-            }
-
+        success: function(responseData) {
+            console.log(responseData);
+        },
+        error: function() {
+            console.log('Error');
         }
     });
 }

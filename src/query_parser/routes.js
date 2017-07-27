@@ -13,5 +13,6 @@ module.exports = (app) => {
     const targets =  req.query.targets;
     publishQueryData(queryString, targets)
       .then(result => res.send(result));
+    res.send("Send complete");
   });
 };
