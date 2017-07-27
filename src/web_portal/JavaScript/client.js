@@ -150,7 +150,12 @@ function send() {
         error: function() {
             console.log('Error');
         }
+
     });
+
+    $("#successBox").show();
+    $("#successBox").fadeOut(3000);
+    fillProgressBar(1, 33);
 }
 
 
