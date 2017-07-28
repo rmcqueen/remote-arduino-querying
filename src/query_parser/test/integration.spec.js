@@ -1,7 +1,10 @@
 const mqtt = require('mqtt');
+const Promise = require('bluebird');
+const { expect } = require('chai');
+const publishQueryData = require('./../publishQueryData.js');
 
-const nonTerminalPage = "{\"client\": \"Arduino1\", \"entries\": \"team\\nname:s;\\ndavid:name;\\nryan:name;\\ndustin:name;;EOP\"}";
-const terminalPage = "{\"client\": \"Arduino1\", \"entries\":\"spencer:name;\\n;EOR\"}";
+const nonTerminalPage = "{\"client\": \"test\", \"entries\": \"team\\nname:s;\\ndavid:name;\\nryan:name;\\ndustin:name;;EOP\"}";
+const terminalPage = "{\"client\": \"test\", \"entries\":\"spencer:name;\\n;EOR\"}";
 
 function mockArduinoResponse(response) {
   // synchronous promise wrapper
@@ -20,11 +23,23 @@ function mockArduinoResponse(response) {
   });
 }
 
+function testCallback() {
+  console.log('testCallback executed')
+  const pages = [nonTerminalPage, terminalPage];
+  return Promise.each(pages, page => mockArduinoResponse(page));
+}
+
 describe('Arduino responses', () => {
-  it('does not resolve until the end-of-result flag before resolving', () => {
-    
-  }); 
+  describe('multi-page results', () => {
+    it('does not resolve until the end-of-result flag before resolving', () => {
+      const queryString = 'SELECT * FROM team;';
+      const targets = ['test'];
+      return publishQueryData(queryString, targets, testCallback)
+        .then(resultSet => {
+          const expectedResultSet = JSON.parse("[[{\"client\": \"test\", \"entries\": \"team\\nname:s;\\ndavid:name;\\nryan:name;\\ndustin:name;;EOP\"}, {\"client\": \"test\", \"entries\":\"spencer:name;\\n;EOR\"}]]");
+          console.log(resultSet);
+          expect(resultSet).to.deep.equal(expectedResultSet);
+        });
+    });
+  })
 });
-
-
-
