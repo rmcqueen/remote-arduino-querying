@@ -67,7 +67,8 @@ describe('lib', () => {
           ]
         }
       }
-      const parsedResult = parseResultSet(resultSet);
+      const resultSetObj = JSON.parse("[{\"client\": \"Arduino1\", \"entries\": \"team\\nname:s;\\ndavid:name;\\nryan:name;\\ndustin:name;;EOP\"}, {\"client\": \"Arduino1\", \"entries\":\"spencer:name;\\n;EOR\"}]");
+      const parsedResult = parseResultSet(resultSetObj);
       expect(parsedResult).to.deep.equal(expectedParsedResult);
     });
   });
