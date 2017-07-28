@@ -1,4 +1,4 @@
-const mqtt = require('mqtt')
+const mqtt = require('mqtt');
 const url = require('url');
 const { getOperationType, getQueryParser } = require('./lib.js');
 const Promise = require("bluebird");
