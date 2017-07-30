@@ -31,8 +31,8 @@ client.connect({
 function onConnect() {
     console.log('Connected!');
 
-    $("#statusBox").html("Connected");
-    $('#statusBox').attr("class", "label alert-success");
+    $('#statusBox').html('Connected');
+    $('#statusBox').attr('class', 'label alert-success');
 
     client.subscribe("status/#", {
         qos: 2
@@ -55,8 +55,8 @@ function onConnectionLost(responseObject) {
         console.log("onConnectionLost:" + responseObject.errorMessage);
     }
 
-    $("#statusBox").html("Disconnected");
-    $('#statusBox').attr("class", "label label-warning");
+    $('#statusBox').html('Disconnected');
+    $('#statusBox').attr('class', 'label label-warning');
 }
 
 
@@ -119,11 +119,11 @@ function onMessageDelivered(message) {
 */
 function send() {
 	// Get the query from the query box
-    var userQuery = $("#publish").val();
+    var userQuery = $('#publish').val();
     var selectedArduinos = [];
 
 	// Reset the values within the text area
-    $("#publish").val("");
+    $('#publish').val("");
 
 	// Return if there is no available MQTT client to use
     if (!client) {
@@ -131,7 +131,7 @@ function send() {
     }
 
     // Go over each checked checkbox, and append them to a list
-    $("input[type=checkbox]").each(function() {
+    $('input[type=checkbox]').each(function() {
         if (this.checked) {
             selectedArduinos.push(this.id);
         }
@@ -144,8 +144,8 @@ function send() {
             queryString: userQuery,
             targets: selectedArduinos
         },
-        success: function(responseData) {
-            console.log(responseData);
+        success: function(result) {
+            alert('Success');
         },
         error: function() {
             console.log('Error');
@@ -153,8 +153,8 @@ function send() {
 
     });
 
-    $("#successBox").show();
-    $("#successBox").fadeOut(3000);
+    $('#successBox').show();
+    $('#successBox').fadeOut(3000);
     fillProgressBar(1, 33);
 }
 
@@ -200,7 +200,7 @@ function CSV_download() {
 * checkbox wrapped in a div
 */
 function createCheckBoxes(name) {
-    container = $("#checkbox");
+    container = $('#checkbox');
     $("<input />", {
         type: "checkbox",
         id: name,
@@ -240,7 +240,7 @@ function removeCheckboxes(name) {
 function displayResults(clientId, message) {
     const newResultEntry = `${clientId}: {csv: ${message}},`
     const currentResultString = $('#resultArea').text();
-    $("#resultArea").val(`${newResultEntry}${currentResultString}`);
+    $('#resultArea').val(`${newResultEntry}${currentResultString}`);
     appendcsvInputData("\n" + clientId + ":\n" + message);
 }
 
