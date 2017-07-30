@@ -32,8 +32,8 @@ MQTT::Client<IPStack, Countdown, MAX_MQTT_PACKET_SIZE> client = MQTT::Client<IPS
 unsigned long lastMillis = 0;
 
 //Tables
-Dictionary < int, void* > *tables = new SkipList < int, void* > (key_type_numeric_signed, sizeof(int), sizeof(void*), 4);
-Dictionary < int, void* > *maxTableSize = new SkipList < int, void* > (key_type_numeric_signed, sizeof(int), 50, 4);
+Dictionary < int, void* > *tables = new FlatFile < int, void* > (key_type_numeric_signed, sizeof(int), sizeof(void*), 4);
+Dictionary < int, void* > *maxTableSize = new FlatFile < int, void* > (key_type_numeric_signed, sizeof(int), 50, 4);
 int tableSize = sizeof(*maxTableSize);
 int* ptrRecordCount; //TODO filthy hack, clean me
 int recordCount;
@@ -81,7 +81,7 @@ int createTable(char* tableName, char* fieldString) {
      return -1;
 
   // init dictionary
-   Dictionary < int, ion_value_t > *table = new SkipList < int, ion_value_t > (key_type_numeric_signed, sizeof(int), sizeof(ion_value_t), 3);
+   Dictionary < int, ion_value_t > *table = new FlatFile < int, ion_value_t > (key_type_numeric_signed, sizeof(int), sizeof(ion_value_t), 3);
    table->insert(1, tableName);
    table->insert(2, fieldString);
   
@@ -200,7 +200,7 @@ void sendMessageToTopic(char* result) {
   message.payload = (void*) result;
   message.payloadlen = strlen(result)+1;
   client.publish(outTopic, message);
-} 
+}
 
 int messageArrived(MQTT::MessageData& md) {
   char payload[MAX_MQTT_PACKET_SIZE];
