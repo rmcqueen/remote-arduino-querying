@@ -30,6 +30,10 @@ client.connect({
 */
 function onConnect() {
     console.log('Connected!');
+
+    $("#statusBox").html("Connected");
+    $('#statusBox').attr("class", "label alert-success");
+
     client.subscribe("status/#", {
         qos: 2
     });
@@ -40,16 +44,19 @@ function onConnect() {
 
 
 /*
-* Purpose: if a connection is lost to the broker, print the error message to the
-* console to inform the user what caused the issue.
-*
-* @param Object responseObject a response indicating what went wrong with the
-* request
-*/
+ * Purpose: if a connection is lost to the broker, print the error message to the
+ * console to inform the user what caused the issue.
+ *
+ * @param Object responseObject a response indicating what went wrong with the
+ * request
+ */
 function onConnectionLost(responseObject) {
     if (responseObject.errorCode !== 0) {
         console.log("onConnectionLost:" + responseObject.errorMessage);
     }
+
+    $("#statusBox").html("Disconnected");
+    $('#statusBox').attr("class", "label label-warning");
 }
 
 
