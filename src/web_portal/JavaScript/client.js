@@ -240,8 +240,7 @@ function removeCheckboxes(name) {
 */
 function displayResults(clientId, message) {
     const newResultEntry = `${clientId}: {csv: ${message}},`
-    const currentResultString = $('#resultArea').text();
-    $("#resultArea").val(`${newResultEntry}${currentResultString}`);
+    $("#resultArea").append(newResultEntry);
     appendcsvInputData("\n" + clientId + ":\n" + message);
 }
 

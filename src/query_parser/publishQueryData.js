@@ -34,6 +34,7 @@ module.exports = (queryString, targets) => {
 
       //TODO: Set publish topic based on "arduino: selectedArduinos" from get request
       function publishQueryData(queryData) {
+        let message = '';
         const client  = mqtt.connect('http://localhost:1883');
         client.on('connect', function () {
           client.subscribe(`result/${target}`);
@@ -44,8 +45,12 @@ module.exports = (queryString, targets) => {
         return client.on('message', (topic, payload) => {
           console.log('message received!');
           console.log(topic, payload.toString());
-          client.end();
-          return resolve('message received: ' + payload.toString());
+          message = `${message}${payload.toString()}`;
+          if (message.indexOf(';EOR') !== -1) {
+            client.end();
+            console.log(`results received: ${message}`);
+            return resolve(`results received: ${message}`); 
+          }
         })
       }
     });
