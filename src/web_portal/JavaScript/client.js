@@ -145,7 +145,7 @@ function send() {
             targets: selectedArduinos
         },
         success: function(result) {
-            alert('Success');
+            console.log('Success');
         },
         error: function() {
             console.log('Error');
