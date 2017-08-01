@@ -1,10 +1,10 @@
-const mqtt = require('mqtt')
+const mqtt = require('mqtt');
 const url = require('url');
-const { parseCreateTable, parseDescribe, parseInsert, parseSelect } = require('./parsers')
+const { getOperationType, getQueryParser } = require('./lib.js');
 const Promise = require("bluebird");
 
-module.exports = (queryString, targets) => {
-  return Promise.each(targets, target => {
+module.exports = (queryString, targets, testCallback = false) => {
+  return Promise.map(targets, target => {
     return new Promise((resolve, reject) => {
       const operationType = getOperationType(queryString);
       const parse = getQueryParser(operationType);
@@ -12,45 +12,29 @@ module.exports = (queryString, targets) => {
 
       return publishQueryData(queryJson);
 
-      function getOperationType(queryString) {
-        const operations = ['CREATE', 'SELECT', 'INSERT', 'DESCRIBE'];
-        return operations.filter(operation => queryString.split()[0].indexOf(operation) === 0)[0];
-      }
-
-      function getQueryParser(operationType) {
-        switch(getOperationType(operationType)) {
-          case 'CREATE':
-            return parseCreateTable;
-          case 'DESCRIBE':
-            return parseDescribe;
-          case 'SELECT':
-            return parseSelect
-          case 'INSERT':
-            return parseInsert;
-          default:
-            return new Error('Could not resolve operation type');
-        }
-      }
-
       //TODO: Set publish topic based on "arduino: selectedArduinos" from get request
       function publishQueryData(queryData) {
+        const result = [];
         const client  = mqtt.connect('http://localhost:1883');
         client.on('connect', function () {
           client.subscribe(`result/${target}`);
           client.publish(`query/${target}`, queryData, { qos:2, retain:false });
           console.log("published " + queryData);
+          if (testCallback) testCallback();
         })
 
         return client.on('message', (topic, payload) => {
-          console.log('message received!');
+          console.log('message received');
           console.log(topic, payload.toString());
-          client.end();
-          return resolve('message received: ' + payload.toString());
+          result.push(JSON.parse(payload.toString()));
+          if (payload.toString().indexOf(';EOR') !== -1) {
+            client.end();
+            return resolve(result);
+          }
         })
       }
     });
   })
-
 }
 
 

@@ -14,3 +14,10 @@
  - The same Arduino sometime works and sometimes doesnt? Try changing your mac addres declared a little bit - the router may still think its in use from a previous run
  - MQTT communications not playing nice in general? Use the config/moquette.conf as your moquette configuration
  - Arduino IDE versions that are < 1.8.3 throw static analysis exceptions for a void pointer being unable to convert to a char pointer. Untested in early versions of 1.8.X
+ 
+### Default MQTT Topic Settings
+ - Queries made from the web portal will be published the query to query/Arduino# for each checkbox selected. Arduinos are connected automatically subscribed to a topic of this format in `onConnect()` in `src/arudino_client/client.ino` The channel subscribed to can be found in the `topic` variable in this same file and it set to `query/Arduino1` by default.
+ - Each the client.ino has a clientId specified. In the repo, it is set to Arduino1 by default.
+ - If you want to query one arduino and not another, this must be changed for each Arduino. This channel is set in the `outTopic` variable in `src/arudino_client/client.ino` and is set to `result/Arduino1` by default.
+ - Upon connection, the clients will publish the message `online` to the topic `status/Arduino1` by default. The status topic is listened to by the web portal which adds new checkboxes in the list of targetable arduinos upon receiving.
+ - When an Arduino goes offline, a last-will-and-testemant message `offline` is published to `status/Arduino1` by default, trigger the removal of the associated checkbox from the webportal.

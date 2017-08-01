@@ -1,4 +1,11 @@
-void sendMessageToTopic(char* result) {
+/**
+@brief    Sends an MQTT message to the 'outTopic'.
+
+@param    result
+        The contents of the outgoing message.
+*/
+void sendMessageToTopic(char* result) 
+{
   MQTT::Message message;
   message.qos = MQTT::QOS2;
   message.retained = false;
@@ -8,12 +15,20 @@ void sendMessageToTopic(char* result) {
   client.publish(outTopic, message);
 } 
 
-int messageArrived(MQTT::MessageData& md) {
+/**
+@brief    Recieves incoming MQTT messages containing query instructions.
+
+@param    md
+          MQTT data from an incoming MQTT message.
+@returns  A status describing the result of the incoming query message.
+*/
+int messageArrived(MQTT::MessageData& md) 
+{
   char payload[MAX_MQTT_PACKET_SIZE];
   MQTT::Message &message = md.message;
   sprintf(payload,(char*)message.payload);
   payload[message.payloadlen] = '\0';
-  Serial.println(payload);
+  //Serial.println(payload);
   StaticJsonBuffer<200> jsonBuffer;
   JsonObject& root = jsonBuffer.parseObject(payload);
   
@@ -27,7 +42,7 @@ int messageArrived(MQTT::MessageData& md) {
      strcpy(input,fieldString);
      createTable(tableName, input);
      sendMessageToTopic("Table created");
-     return 0;
+     return TABLE_CREATED_OK;
   }
 
   // describe table
@@ -43,7 +58,6 @@ int messageArrived(MQTT::MessageData& md) {
     strcpy(input, fields);
     insertInto(tableName, input);
     sendMessageToTopic("Record inserted");
-    Serial.println("Finished insert");
      return 1;
   }
 
@@ -54,5 +68,5 @@ int messageArrived(MQTT::MessageData& md) {
     free(result);
     return 2;
   }
-  return -1;
+  return INVALID_QUERY;
 }

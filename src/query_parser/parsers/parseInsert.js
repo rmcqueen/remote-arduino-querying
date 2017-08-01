@@ -8,9 +8,6 @@ module.exports = sql => {
     const fieldNames = fieldNamesString.split(',');
     const fieldValues = fieldValuesString.split(',');
     for(i = 0; i < fieldNames.length; i++) {
-      // const [ fieldName, fieldType ] = [fieldNames[i], fieldValues[i]];
-      // const fieldDatum = compressFieldElements(fieldName, fieldType);
-      // fieldData = appendFieldDatum(fieldDatum, fieldData);
       fieldData = fieldData + fieldValues[i] + ':' + fieldNames[i] + ';'
     }
     return fieldData;
