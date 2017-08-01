@@ -24,8 +24,9 @@ EthernetClient c;
 IPStack ipstack(c);
 
 //MQTT
-const char* topic = "query/Arduino4";
-const char* outTopic = "result/Arduino4";
+const char* clientId = "Arduino1"
+const char* topic = strcat("query/", clientId);
+const char* outTopic = strcat("result/", clientId);
 const int MAX_MQTT_PACKET_SIZE = 512;
 MQTT::Client<IPStack, Countdown, MAX_MQTT_PACKET_SIZE> client = MQTT::Client<IPStack, Countdown, MAX_MQTT_PACKET_SIZE>(ipstack);
 
@@ -37,6 +38,10 @@ Dictionary < int, void* > *maxTableSize = new FlatFile < int, void* > (key_type_
 int tableSize = sizeof(*maxTableSize);
 int* ptrRecordCount; //TODO filthy hack, clean me
 int recordCount;
+
+//Errors
+int error_t = -1;
+int success_t = 0;
 
 int flushSkipList(Dictionary <int, ion_value_t > *dict) {
   Serial.println("Closing SkipList...");
@@ -61,7 +66,7 @@ int flushSkipList(Dictionary <int, ion_value_t > *dict) {
   fwrite(&recordCount, sizeof(int), 1, dataFile);
   fclose(dataFile);
   delete tableCursor;
-  return 0;
+  return success_t;
 }
 
 int openSkipList(Dictionary <int, ion_value_t > *dict, char* tableName) {
@@ -82,7 +87,7 @@ int openSkipList(Dictionary <int, ion_value_t > *dict, char* tableName) {
     dict->insert(*key, value);
   }
   fclose(dataFile);
-  return 0;
+  return success_t;
 }
 
 int connect() {
@@ -94,8 +99,8 @@ int connect() {
   // ONLINE/OFFLINE detecting code
   MQTTPacket_connectData data = MQTTPacket_connectData_initializer;
   data.willFlag = 1;
-  data.clientID.cstring = (char*) "Arduino1";                               //Set for each Arduino
-  data.will.topicName.cstring = (char*) "status/Arduino1";                  //Set to status/ <ID>
+  data.clientID.cstring = clientId;                               //Set for each Arduino
+  data.will.topicName.cstring = strcat("status/", clientId);                  //Set to status/ <ID>
   data.will.qos = 2;
   data.will.retained = 1;
   data.will.message.cstring = (char*) "offline";
@@ -113,10 +118,10 @@ int connect() {
   client.subscribe(topic, MQTT::QOS2, messageArrived);
   if (client.isConnected()) {
     Serial.println("Connected!");
-    return 0;
+    return success_t;
   } else {
     Serial.println("Not yet connected...");
-    return -1;
+    return error_t;
   }
 }
 
@@ -124,7 +129,7 @@ int createTable(char* tableName, char* fieldString) {
   Serial.println("createTable called");
   tables->get(stringToInt(tableName));
   if (!(err_item_not_found == tables->last_status.error))
-    return -1;
+    return error_t;
 
   // init dictionary
   Dictionary < int, ion_value_t > *table = new FlatFile < int, ion_value_t > (key_type_numeric_signed, sizeof(int), sizeof(ion_value_t), 3);
@@ -138,7 +143,7 @@ int createTable(char* tableName, char* fieldString) {
   tables->insert(stringToInt(tableName), tableCache);
   Serial.println("Finished creating table");
   flushSkipList(table);
-  return 0;
+  return success_t;
 }
 
 void describeTable(char* tableName) {
@@ -155,14 +160,14 @@ void describeTable(char* tableName) {
 int insertInto(char* tableName, char* tuple) {
   Dictionary < int, ion_value_t > *table = ((Dictionary < int, ion_value_t >*) tables->get(stringToInt(tableName)));
   if (err_item_not_found == tables->last_status.error)
-    return -1;
+    return error_t;
   Serial.println("Table gotten");
   Serial.println(tuple);
   table->insert(*ptrRecordCount, tuple);
   Serial.println("Record inserted...");
   *ptrRecordCount =  *ptrRecordCount + 1;
   flushSkipList(table);
-  return 0;
+  return success_t;
 }
 
 char* selectAll(char* tableName) {
@@ -244,13 +249,13 @@ int messageArrived(MQTT::MessageData& md) {
     strcpy(input, fieldString);
     createTable(tableName, input);
     sendMessageToTopic("Table created;EOR");
-    return 0;
+    return success_t;
   }
 
   // describe table
   if ((String) opCode == "d") {
     describeTable(tableName);
-    return 0;
+    return success_t;
   }
 
   // insert into table
@@ -261,15 +266,15 @@ int messageArrived(MQTT::MessageData& md) {
     insertInto(tableName, input);
     sendMessageToTopic("Record inserted;EOR");
     Serial.println("Finished insert");
-    return 1;
+    return success_t;
   }
 
   // select from table
   if ((String) opCode == "s") {
     selectAll(tableName);
-    return 2;
+    return success_t;
   }
-  return -1;
+  return error_t;
 }
 
 // main
