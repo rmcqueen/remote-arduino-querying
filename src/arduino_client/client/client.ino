@@ -25,7 +25,7 @@ IPStack ipstack(c);
 
 //MQTT
 char hostname[] = "192.168.1.4"; // CHANGE ME TO YOUR HOSTNAME
-const char* clientId = "Arduino1"
+const char* clientId = "Arduino1";
 const char* topic = strcat("query/", clientId);
 const char* outTopic = strcat("result/", clientId);
 const int MAX_MQTT_PACKET_SIZE = 512;
