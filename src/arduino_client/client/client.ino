@@ -24,6 +24,7 @@ EthernetClient c;
 IPStack ipstack(c);
 
 //MQTT
+char hostname[] = "192.168.1.4"; // CHANGE ME TO YOUR HOSTNAME
 const char* clientId = "Arduino1"
 const char* topic = strcat("query/", clientId);
 const char* outTopic = strcat("result/", clientId);
@@ -93,7 +94,6 @@ int openSkipList(Dictionary <int, ion_value_t > *dict, char* tableName) {
 int connect() {
   Serial.println("Connecting...");
   int port = 1883;
-  char hostname[] = "192.168.1.4"; // CHANGE ME TO YOUR HOSTNAME
   ipstack.connect(hostname, port);
 
   // ONLINE/OFFLINE detecting code
