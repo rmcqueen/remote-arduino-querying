@@ -30,8 +30,6 @@ client.connect({
 */
 function onConnect() {
     console.log('Connected!');
-
-
     $('#statusBox').html('Connected');
     $('#statusBox').attr('class', 'label alert-success');
 

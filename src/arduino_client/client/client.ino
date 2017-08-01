@@ -24,18 +24,18 @@ EthernetClient c;
 IPStack ipstack(c);
 
 //MQTT
-char hostname[] = "192.168.1.4"; // CHANGE ME TO YOUR HOSTNAME
-const char* clientId = "Arduino1";
-const char* topic = strcat("query/", clientId);
-const char* outTopic = strcat("result/", clientId);
+char hostname[] = "192.168.1.68"; // CHANGE ME TO YOUR HOSTNAME
+const char* clientId = "Arduino2";
+const char* topic = "query/Arduino2";
+const char* outTopic = "result/Arduino2";
 const int MAX_MQTT_PACKET_SIZE = 512;
 MQTT::Client<IPStack, Countdown, MAX_MQTT_PACKET_SIZE> client = MQTT::Client<IPStack, Countdown, MAX_MQTT_PACKET_SIZE>(ipstack);
 
 unsigned long lastMillis = 0;
 
 //Tables
-Dictionary < int, void* > *tables = new FlatFile < int, void* > (key_type_numeric_signed, sizeof(int), sizeof(void*), 4);
-Dictionary < int, void* > *maxTableSize = new FlatFile < int, void* > (key_type_numeric_signed, sizeof(int), 50, 4);
+Dictionary < int, void* > *tables = new SkipList < int, void* > (key_type_numeric_signed, sizeof(int), sizeof(void*), 4);
+Dictionary < int, void* > *maxTableSize = new SkipList < int, void* > (key_type_numeric_signed, sizeof(int), 50, 4);
 int tableSize = sizeof(*maxTableSize);
 int* ptrRecordCount; //TODO filthy hack, clean me
 int recordCount;
@@ -114,7 +114,7 @@ int connect() {
   message.retained = true;
   message.payload = (void*)buf;
   message.payloadlen = strlen(buf);
-  client.publish("status/Arduino4", message);
+  client.publish("status/Arduino2", message);
   client.subscribe(topic, MQTT::QOS2, messageArrived);
   if (client.isConnected()) {
     Serial.println("Connected!");
@@ -132,7 +132,7 @@ int createTable(char* tableName, char* fieldString) {
     return error_t;
 
   // init dictionary
-  Dictionary < int, ion_value_t > *table = new FlatFile < int, ion_value_t > (key_type_numeric_signed, sizeof(int), sizeof(ion_value_t), 3);
+  Dictionary < int, ion_value_t > *table = new SkipList < int, ion_value_t > (key_type_numeric_signed, sizeof(int), sizeof(ion_value_t), 3);
   table->insert(1, tableName);
   table->insert(2, fieldString);
 
