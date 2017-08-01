@@ -73,7 +73,6 @@ int openSkipList(Dictionary <int, ion_value_t > *dict, char* tableName) {
   fread(&recordCount, sizeof(int), 1, dataFile);
   printf("Record count read = %d\n", recordCount);
   fseek(dataFile, 0, SEEK_SET);
-
   for (int i = 0; i < recordCount; i++) {
     int *key = malloc(sizeof(int));
     char *value = malloc(16);
@@ -91,7 +90,6 @@ int connect() {
   int port = 1883;
   char hostname[] = "192.168.1.4"; // CHANGE ME TO YOUR HOSTNAME
   ipstack.connect(hostname, port);
-
 
   // ONLINE/OFFLINE detecting code
   MQTTPacket_connectData data = MQTTPacket_connectData_initializer;
@@ -139,6 +137,7 @@ int createTable(char* tableName, char* fieldString) {
   memcpy(tableCache, table, sizeof(*table));
   tables->insert(stringToInt(tableName), tableCache);
   Serial.println("Finished creating table");
+  flushSkipList(table);
   return 0;
 }
 
@@ -162,6 +161,7 @@ int insertInto(char* tableName, char* tuple) {
   table->insert(*ptrRecordCount, tuple);
   Serial.println("Record inserted...");
   *ptrRecordCount =  *ptrRecordCount + 1;
+  flushSkipList(table);
   return 0;
 }
 
