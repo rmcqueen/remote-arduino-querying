@@ -1,6 +1,6 @@
 #include <ArduinoJson.h>
 #define MQTTCLIENT_QOS2 1
-#define MAX_INCOMING_Q0S2_MESSAGES 10 
+#define MAX_INCOMING_Q0S2_MESSAGES 10
 #include <MQTTClient.h>
 #include <SD.h>
 #include <SPI.h>
@@ -10,7 +10,7 @@
 #include <EthernetClient.h>
 #include <EthernetServer.h>
 #include <EthernetUdp.h>
-#include <SD.h> 
+#include <SD.h>
 #include <IonDB.h>
 #include <IPStack.h>
 #include <Countdown.h>
@@ -23,7 +23,7 @@ byte mac[] = {
 EthernetClient c;
 IPStack ipstack(c);
 
-//MQTT 
+//MQTT
 const char* topic = "query/Arduino4";
 const char* outTopic = "result/Arduino4";
 const int MAX_MQTT_PACKET_SIZE = 512;
@@ -91,10 +91,10 @@ int connect() {
   int port = 1883;
   char hostname[] = "192.168.1.4"; // CHANGE ME TO YOUR HOSTNAME
   ipstack.connect(hostname, port);
- 
-  
+
+
   // ONLINE/OFFLINE detecting code
-  MQTTPacket_connectData data = MQTTPacket_connectData_initializer;       
+  MQTTPacket_connectData data = MQTTPacket_connectData_initializer;
   data.willFlag = 1;
   data.clientID.cstring = (char*) "Arduino1";                               //Set for each Arduino
   data.will.topicName.cstring = (char*) "status/Arduino1";                  //Set to status/ <ID>
@@ -105,15 +105,15 @@ int connect() {
 
   //Online flag
   char buf[128];
-  sprintf(buf,"online");
+  sprintf(buf, "online");
   MQTT::Message message;
   message.qos = MQTT::QOS2;
   message.retained = true;
   message.payload = (void*)buf;
   message.payloadlen = strlen(buf);
-  client.publish("status/Arduino4", message);      
+  client.publish("status/Arduino4", message);
   client.subscribe(topic, MQTT::QOS2, messageArrived);
-  if(client.isConnected()) {
+  if (client.isConnected()) {
     Serial.println("Connected!");
     return 0;
   } else {
@@ -125,14 +125,14 @@ int connect() {
 int createTable(char* tableName, char* fieldString) {
   Serial.println("createTable called");
   tables->get(stringToInt(tableName));
-  if(!(err_item_not_found == tables->last_status.error))
-     return -1;
+  if (!(err_item_not_found == tables->last_status.error))
+    return -1;
 
   // init dictionary
-   Dictionary < int, ion_value_t > *table = new FlatFile < int, ion_value_t > (key_type_numeric_signed, sizeof(int), sizeof(ion_value_t), 3);
-   table->insert(1, tableName);
-   table->insert(2, fieldString);
-  
+  Dictionary < int, ion_value_t > *table = new FlatFile < int, ion_value_t > (key_type_numeric_signed, sizeof(int), sizeof(ion_value_t), 3);
+  table->insert(1, tableName);
+  table->insert(2, fieldString);
+
   // save table in memory
   Dictionary< int, ion_value_t> *tableCache = malloc(tableSize);
   memset(tableCache, 0, tableSize);
@@ -151,12 +151,12 @@ void describeTable(char* tableName) {
     result = result + (String) result + "\n";
     Serial.println((String)value);
   }
-} 
+}
 
 int insertInto(char* tableName, char* tuple) {
   Dictionary < int, ion_value_t > *table = ((Dictionary < int, ion_value_t >*) tables->get(stringToInt(tableName)));
-  if(err_item_not_found == tables->last_status.error)
-     return -1;
+  if (err_item_not_found == tables->last_status.error)
+    return -1;
   Serial.println("Table gotten");
   Serial.println(tuple);
   table->insert(*ptrRecordCount, tuple);
@@ -169,18 +169,18 @@ char* selectAll(char* tableName) {
   int recordsBuffered = 0;
   int maxRecordsPerPage = 5;
   Dictionary < int, ion_value_t > *table = ((Dictionary < int, ion_value_t >*) tables->get(stringToInt(tableName)));
-  if(err_item_not_found == tables->last_status.error)
+  if (err_item_not_found == tables->last_status.error)
     return "-1";
   Cursor< int, void* > *my_cursor = table->allRecords();
   char* result = (char*) malloc(1);
   result[0] = '\0';
   char* value;
   while (my_cursor->next()) {
-    if(recordsBuffered == maxRecordsPerPage) {
+    if (recordsBuffered == maxRecordsPerPage) {
       Serial.println("Sending page...");
       value = ";EOP";
-      result = realloc(result,(sizeof(char) * (strlen(value) + strlen(result))+1));
-      strcat(result,"\n");
+      result = realloc(result, (sizeof(char) * (strlen(value) + strlen(result)) + 1));
+      strcat(result, "\n");
       strcat(result, value);
       sendMessageToTopic(result);
       delay(500);
@@ -190,14 +190,14 @@ char* selectAll(char* tableName) {
       continue;
     }
     value = my_cursor->getValue();
-    result = realloc(result,(sizeof(char) * (strlen(value) + strlen(result))+1));
-    strcat(result,"\n");
+    result = realloc(result, (sizeof(char) * (strlen(value) + strlen(result)) + 1));
+    strcat(result, "\n");
     strcat(result, value);
     recordsBuffered++;
   }
   value = ";EOR";
-  result = realloc(result,(sizeof(char) * (strlen(value) + strlen(result))+1));
-  strcat(result,"\n");
+  result = realloc(result, (sizeof(char) * (strlen(value) + strlen(result)) + 1));
+  strcat(result, "\n");
   strcat(result, value);
   sendMessageToTopic(result);
   delete my_cursor;
@@ -206,12 +206,12 @@ char* selectAll(char* tableName) {
 
 // Helpers
 int stringToInt(char* str) {
-    int result = 0;
-    for(int i = (strlen(str)-1); i >= 0; i--) {
-        int charValue = (str[i] - 96);
-        result = result + (charValue);
-    }
-    return result;
+  int result = 0;
+  for (int i = (strlen(str) - 1); i >= 0; i--) {
+    int charValue = (str[i] - 96);
+    result = result + (charValue);
+  }
+  return result;
 }
 
 void sendMessageToTopic(char* result) {
@@ -221,51 +221,51 @@ void sendMessageToTopic(char* result) {
   message.retained = false;
   message.dup = false;
   message.payload = (void*) result;
-  message.payloadlen = strlen(result)+1;
+  message.payloadlen = strlen(result) + 1;
   client.publish(outTopic, message);
 }
 
 int messageArrived(MQTT::MessageData& md) {
   char payload[MAX_MQTT_PACKET_SIZE];
   MQTT::Message &message = md.message;
-  sprintf(payload,(char*)message.payload);
+  sprintf(payload, (char*)message.payload);
   payload[message.payloadlen] = '\0';
   Serial.println(payload);
   StaticJsonBuffer<200> jsonBuffer;
   JsonObject& root = jsonBuffer.parseObject(payload);
-  
+
   char* opCode = root["op_code"];
   char* tableName = root["query"]["table"];
-  
-  // create table 
-  if((String) opCode == "c") {
-     char* fieldString = root["query"]["fields"];
-     char* input = malloc(sizeof(char) * strlen(fieldString)+1);
-     strcpy(input,fieldString);
-     createTable(tableName, input);
-     sendMessageToTopic("Table created;EOR");
-     return 0;
+
+  // create table
+  if ((String) opCode == "c") {
+    char* fieldString = root["query"]["fields"];
+    char* input = malloc(sizeof(char) * strlen(fieldString) + 1);
+    strcpy(input, fieldString);
+    createTable(tableName, input);
+    sendMessageToTopic("Table created;EOR");
+    return 0;
   }
 
   // describe table
-  if((String) opCode == "d") {
+  if ((String) opCode == "d") {
     describeTable(tableName);
-     return 0;
+    return 0;
   }
 
   // insert into table
-  if((String) opCode == "i") {
+  if ((String) opCode == "i") {
     char* fields = root["query"]["fields"];
-    char* input = malloc(sizeof(char) * strlen(fields)+1);
+    char* input = malloc(sizeof(char) * strlen(fields) + 1);
     strcpy(input, fields);
     insertInto(tableName, input);
     sendMessageToTopic("Record inserted;EOR");
     Serial.println("Finished insert");
-     return 1;
+    return 1;
   }
 
   // select from table
-  if((String) opCode == "s") {
+  if ((String) opCode == "s") {
     selectAll(tableName);
     return 2;
   }
@@ -276,7 +276,7 @@ int messageArrived(MQTT::MessageData& md) {
 void setup() {
   Serial.begin(9600);
   SD.begin(4);
-  Ethernet.begin(mac);  
+  Ethernet.begin(mac);
   connect();
   recordCount = 3;
   ptrRecordCount = &recordCount;
