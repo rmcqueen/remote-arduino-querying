@@ -42,16 +42,15 @@ int openSkipList(Dictionary <int, ion_value_t > *dict, char* tableName) {
   fread(&recordCount, sizeof(int), 1, dataFile);
   printf("Record count read = %d\n", recordCount);
   fseek(dataFile, 0, SEEK_SET);
-  int *key = malloc(sizeof(int));
-  char *value = malloc(16);
+
   for (int i = 0; i < recordCount; i++) {
+    int *key = malloc(sizeof(int));
+    char *value = malloc(16);
     fread(key, sizeof(int), 1, dataFile);
     fread(value, 16, 1, dataFile);
     printf("%d,%s\n", *key, value);
     dict->insert(*key, value);
   }
-  free(key);
-  free(value);
   fclose(dataFile);
   return 0;
 }
@@ -72,11 +71,7 @@ void setup() {
   int *key = malloc(sizeof(int));
   char *value = malloc(16);
   while (tableCursor->next()) {
-    memset(value, 0, 16);
-    int thisKey = tableCursor->getKey();
-    memcpy(key, &thisKey, sizeof(int));
-    memcpy(value, tableCursor->getValue(), 16);
-    printf("%d,%s\n", *key, value);
+    printf("%d,%s\n", tableCursor->getKey(), tableCursor->getValue());
   }
 }
 
