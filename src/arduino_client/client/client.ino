@@ -19,9 +19,9 @@
 byte mac[] = {
   0x00, 0xAA, 0xBB, 0xCC, 0xDE, 0x04
 };
+
 EthernetClient c;
 IPStack ipstack(c);
-
 
 //MQTT 
 const char* topic = "query/Arduino4";
@@ -142,24 +142,9 @@ int createTable(char* tableName, char* fieldString) {
   return 0;
 }
 
-Dictionary < int, ion_value_t>* getTableByName(char* tableName) {
-  return ((Dictionary < int, ion_value_t>*) tables->get(stringToInt(tableName)));
-}
-
-Dictionary <int, ion_value_t>* getTableByTableName(char* tableName) {
-    // save table in memory
-    void *tableAddress = tables->get(stringToInt(tableName));
-    return ((Dictionary< int, ion_value_t>*) tableAddress);
-}
-
-Cursor<int, void*>* getSchemaCursorByTableName(char* tableName) {
-    // save table in memory
-    void *tableAddress = tables->get((char*) stringToInt(tableName));
-    return ((Dictionary< int, ion_value_t>*) tableAddress)->allRecords();
-}
-
 void describeTable(char* tableName) {
-  Cursor< int, void* > *my_cursor = getSchemaCursorByTableName(tableName);
+  void *tableAddress = tables->get((char*) stringToInt(tableName));
+  Cursor< int, void* > *my_cursor = ((Dictionary< int, ion_value_t>*) tableAddress)->allRecords();
   String result = "";
   while (my_cursor->next()) {
     char* value = my_cursor->getValue();
@@ -227,16 +212,6 @@ int stringToInt(char* str) {
         result = result + (charValue);
     }
     return result;
-}
-
-void printTableByName(char* tableName) {
-  // show insert indeed worked by printing table schema
-  Serial.println("Printing......");
-  Cursor< int, void* > *my_cursor = ((Dictionary < int, ion_value_t >*) tables->get(stringToInt(tableName)))->allRecords();
-  while (my_cursor->next()) {
-    Serial.println((char*) my_cursor->getValue());
-  }
-  delete my_cursor;
 }
 
 void sendMessageToTopic(char* result) {
