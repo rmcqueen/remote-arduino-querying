@@ -60,7 +60,6 @@ int flushSkipList(Dictionary <int, ion_value_t > *dict) {
   free(value);
   fwrite(&recordCount, sizeof(int), 1, dataFile);
   fclose(dataFile);
-  delete dict;
   delete tableCursor;
   return 0;
 }
@@ -298,11 +297,10 @@ int messageArrived(MQTT::MessageData& md) {
   return -1;
 }
 
-
-
 // main
 void setup() {
   Serial.begin(9600);
+  SD.begin(4);
   Ethernet.begin(mac);  
   connect();
   recordCount = 3;
