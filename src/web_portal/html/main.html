@@ -12,25 +12,19 @@
         </div>
     </div>
 
-    <div class="header_row">
-    
-    </div>
+    <div class="header_row"></div>
 
     <div class="container">
         <div id="left">
-                <div class="col-lg-10">
-                    <label for="publish" class="col-lg-12 control-label"><h4><b>Query</b></h4></label>
-                    <textarea class="form-control" rows="10" id="publish" placeholder="Enter a query here"></textarea><br>
+            <label for="publish" class="col-lg-10 control-label"><h4><b>Query</b></h4></label>
+            <div class="form-group">
+                <div class="col-lg-12">
+                <textarea class="form-control" rows="10" id="publish" placeholder="Enter a query here"></textarea>
                 </div>
-
-                <label for="checkbox" class="col-lg-6 control-label col-md-offset-1"><h4><b>Available Arduinos</b></h4></label>
-                <div class="col-lg-3" id="checkbox"></div>
-                    <input type="button" class="btn btn-default" id="sendButton" value="Send"
-                           onclick="send();"/><br><br>
-
-                <div class="alert alert-dismissible alert-success" id="successBox">
-                    <strong>Message Sent!</strong>
-                </div>
+            </div>
+            <button class="btn btn-default" id="sendButton" value="Send" onclick="send();">Send</button>
+            <label for="checkbox" class="col-lg-6 control-label col-md-offset-1"><h4><b>Available Arduinos</b></h4></label>
+            <div class="col-lg-3" id="checkbox"></div>
         </div>
 
 
@@ -38,8 +32,7 @@
             <label for="resultArea" class="col-lg-10 control-label"><h4><b>Query Results</b></h4></label>
             <div class="form-group">
                 <div class="col-lg-10">
-                    <textarea class="form-control" rows="10" id="resultArea">
-                    </textarea>
+                    <textarea class="form-control" rows="10" id="resultArea"></textarea>
                 </div>
             </div>
             <button type="button" onclick="CSV_download();" class="btn btn-default" id="exportButton">Export to CSV</button>
@@ -49,8 +42,7 @@
             <label for="queryhistory" class="col-lg-14 control-label"><h4><b>Query History</b></h4></label>
             <div class="form-group">
                 <div class="col-lg-10 col-md-offset-1">
-                    <textarea class="form-control" rows="10" id="queryhistory">
-                    </textarea>
+                    <textarea class="form-control" rows="10" id="queryhistory"></textarea>
                 </div>
             </div>
         </div>
@@ -58,19 +50,22 @@
 
     <div class="prog">
         <div class="row">
-            <h4><b>Query Status:</b></h4>
+            <h4><b>Query Status</b></h4>
         </div>
-        <div class="progress progress-striped">
-            <div class="progress-bar progress-bar-info" id="progressBar"></div>
+        <div class="progress">
+            <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 50%">
+                <span class="sr-only">45% Complete</span>
+            </div>
         </div>
-    </div>
-
-    <div class="footer-panel text-center">
-        <h4>Ion Field Network</h4>
-    </div>
 </div>
+
+<div class="footer-panel text-center">
+    <h4>Ion Field Network</h4>
+</div>
+
 <script type="text/javascript" src="../JavaScript/mqttws31.js"></script>
 <script type="text/javascript" src="../JavaScript/jquery.min.js"></script>
+<script type="text/javascript" src="../JavaScript/bootstrap.min.js"></script>
 <script type="text/javascript" src="../JavaScript/client.js"></script>
 </body>
 </html>

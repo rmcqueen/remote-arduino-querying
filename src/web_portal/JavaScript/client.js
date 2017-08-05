@@ -126,9 +126,6 @@ function send() {
     var userQuery = $('#publish').val();
     var selectedArduinos = [];
 
-	// Reset the values within the text area
-    $('#publish').val("");
-
 	// Return if there is no available MQTT client to use
     if (!client) {
         return;
@@ -140,6 +137,20 @@ function send() {
             selectedArduinos.push(this.id);
         }
     });
+
+    // Note: this cannot be a falsy check (!valid....()) it must check type.
+    if(validQueryEntered() === false) {
+        return;
+    }
+    
+    if(validArduinoSelected(selectedArduinos) === false) {
+        return;
+    }
+    // Reset the values within the text area
+    $('#publish').val('');
+
+    // Store the user's query in the query history text area
+    $('#queryhistory').append(userQuery + '\n');
 	// Perform an AJAX request to the server for query parsing
     $.ajax({
         url: "http://localhost:3000/publish_query",
@@ -244,9 +255,9 @@ function removeCheckboxes(name) {
 function displayResults(clientId, message) {
     const newResultEntry = `${clientId}: {csv: ${message}},`
     $("#resultArea").append(newResultEntry);
-  
     appendcsvInputData("\n" + clientId + ":\n" + message);
 }
+
 
 /*
 * Purpose: this function fills up the progress bar in 3 steps. The first 1/3
@@ -257,13 +268,12 @@ function displayResults(clientId, message) {
 * After 2 seconds, the progress bar resets itself.
 *
 * @param int start the position the progress bar will start to fill at.
-*
 * @param int finish the position the progress bar will finish filling at.
 */
 function fillProgressBar(start, finish) {
 
     var startingWidth = start;
-    var progressBar = document.getElementById("progressBar");
+    var progressBar = $('.progress-bar');
     var clear = setInterval(stopFill, 1);
 
     function stopFill() {
@@ -271,7 +281,7 @@ function fillProgressBar(start, finish) {
             clearInterval(clear);
         } else {
             startingWidth++;
-            progressBar.style.width = startingWidth + '%';
+            progressBar.css('width', startingWidth + '%');
             if (startingWidth <= 33) {
                 progressBar.innerHTML = "Message Sent...";
             }
@@ -292,3 +302,38 @@ function fillProgressBar(start, finish) {
         }
     }
 }
+
+
+function validQueryEntered() {
+    $('.header_row').empty();
+    if($('#publish').val() === '') {
+        $('.header_row').append('<div class="alert alert-danger alert-dismissable fade in">' +
+        '<button type="button" class="close" data-dismiss="alert" aria-label="close">&times;</button>' +
+        '<strong>Error:</strong> A query must be entered.' +
+        '</div>');
+    return false;
+    }
+    else {
+        return true;
+    }
+}
+
+
+function validArduinoSelected(selectedArduinos) {
+    $('.header_row').empty();
+    if(selectedArduinos.length === 0) {
+        $('.header_row').append('<div class="alert alert-danger alert-dismissable fade in">' +
+        '<button type="button" class="close" data-dismiss="alert" aria-label="close">&times;</button>' +
+        '<strong>Error:</strong> An Arduino must be selected.' +
+        '</div>');
+        return false;
+        }
+
+    else {
+        $('.header_row').append('<div class="alert alert-success alert-dismissable">' +
+        '<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>' +
+        '<strong>Message Sent!</strong></div>');
+        return true;
+    }
+}
+
