@@ -1,7 +1,8 @@
 const mqtt = require('mqtt');
 const url = require('url');
+const tracker = require('./tracker.js');
 const { getOperationType, getQueryParser } = require('./lib.js');
-const Promise = require("bluebird");
+const Promise = require('bluebird');
 
 module.exports = (queryString, targets, testCallback = false) => {
   return Promise.map(targets, target => {
@@ -17,6 +18,7 @@ module.exports = (queryString, targets, testCallback = false) => {
         const result = [];
         const client  = mqtt.connect('http://localhost:1883');
         client.on('connect', function () {
+          tracker.track(`${target}`);
           client.subscribe(`result/${target}`);
           client.publish(`query/${target}`, queryData, { qos:2, retain:false });
           console.log("published " + queryData);

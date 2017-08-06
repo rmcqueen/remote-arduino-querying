@@ -9,6 +9,8 @@
 #define CREATE_TABLE_OP 0
 #define INSERT_ELEMENT_OP 1
 #define SELECT_ALL_OP 2
+#define SELECT_ALL_OK 0
+#define DESCRIBE_TABLE_OK 0
 #define MQTTCLIENT_QOS2 1
 #define MAX_INCOMING_Q0S2_MESSAGES 10
 
@@ -277,7 +279,7 @@ int messageArrived(MQTT::MessageData& md)
   // describe table
   if ((String) opCode == "d") {
     describeTable(tableName);
-    return 0;
+    return DESCRIBE_TABLE_OK;
   }
 
   // insert into table
@@ -288,7 +290,7 @@ int messageArrived(MQTT::MessageData& md)
     insertInto(tableName, input);
     sendMessageToTopic("Record inserted");
     //Serial.println("Finished insert");
-    return 1;
+    return ELEMENT_INSERTED_OK;
   }
 
   // select from table
@@ -296,7 +298,7 @@ int messageArrived(MQTT::MessageData& md)
     char *result = selectAll(tableName);
     sendMessageToTopic(result);
     free(result);
-    return 2;
+    return SELECT_ALL_OK;
   }
   return INVALID_QUERY;
 }
