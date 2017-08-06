@@ -89,8 +89,8 @@ function onMessageArrived(message) {
     }
 
     if (destination === "result") {
-        updateLoadingIconText('Received');
         displayResults(clientId, message.payloadString);
+        updateLoadingIconText('Received');
     } else {
         console.log("No results");
     }
@@ -107,6 +107,7 @@ function onMessageArrived(message) {
  * it sent back. See mqttws31.js for more information
  */
 function onMessageDelivered(message) {
+    // TODO: This needs to be refactored since the message param is not being used
     updateLoadingIconText('Delivered')
 }
 
@@ -255,9 +256,7 @@ function displayResults(clientId, message) {
 
 
 /*
-* Purpose:
-*
-*
+* Purpose: update the text on the success banner to give the user an indication of where their query is at
 */
 function updateLoadingIconText(status) {
     if(status === 'Delivered') {
@@ -270,10 +269,11 @@ function updateLoadingIconText(status) {
     }
 }
 
+
 /*
-* Purpose:
+* Purpose: checks whether or not text has been entered into the textbox to reduce potential errors
 *
-*
+* @return bool  indicates whether or not text has been entered in the textbox
 */
 function validQueryEntered() {
     $('.header_row').empty();
@@ -291,9 +291,11 @@ function validQueryEntered() {
 
 
 /*
-* Purpose:
+* Purpose: this function checks whether or not a user has selected any arduinos before allowing them to proceed
+* with sending their query
 *
-*
+* @param String[] selectedArduinos  indicates which arduinos are selected
+@ return boolean    whether or not the Arduino selected is valid (if there are any selected)
 */
 function validArduinoSelected(selectedArduinos) {
     $('.header_row').empty();
