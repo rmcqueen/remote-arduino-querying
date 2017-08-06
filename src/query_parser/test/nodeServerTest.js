@@ -1,8 +1,8 @@
-var chai= require('chai');
-var chaiHttp = require('chai-http');
-var server = require('../server.js');
-var should = chai.should();
-var expect = require('chai').expect;
+const chai= require('chai');
+const chaiHttp = require('chai-http');
+const server = require('../server.js');
+const should = chai.should();
+const expect = require('chai').expect;
 chai.use(chaiHttp);
 
 describe('Server connection.', () => {
