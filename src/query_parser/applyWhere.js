@@ -1,36 +1,16 @@
-const whereString = 'WHERE name = spencer';
-const resultSet = {
-  "attributes": {
-    "name": "String",
-    "age": "int",
-  },
-  "clientTuples": {
-    "Arduino1": [
-      "david,28",
-      "ryan,21",
-      "dustin,30",
-      "spencer,24",
-    ],
-    "Arduino2": [
-      "david,28",
-      "ryan,21",
-      "dustin,30",
-      "spencer,24",
-    ],
-  }
-}
-
 function parseOperator(whereClause) {
+  const normalizedWhereClause = whereClause.toLowerCase();
   const operators = ['>', '=', '<', 'like'];
-  const operator = operators.filter(operator => whereClause.indexOf(operator) !== -1);
+  const operator = operators.filter(operator => normalizedWhereClause.indexOf(operator) !== -1);
   if (operator[0]) {
+    console.log(operator[0])
     return operator[0];
   }
   throw new Error('Invalid operand in WHERE clause');
 }
 
 function parseWhere(whereClause) {
-  const comparison = whereClause.split('WHERE ')[1];
+  const comparison = whereClause.split('WHERE ')[1].toLowerCase();
   const operator = parseOperator(whereClause)
   const [ field, value ] = comparison.split(` ${operator} `);
   return { field: field, value: value, operator: operator };
@@ -57,6 +37,8 @@ function getFilterOperation(operator) {
       return applyGreaterThan;
     case '<':
       return applyLessThan;
+    default: 
+      throw new Error(`Could not resolve filter operation. Operator: ${operator}`);
   }
 }
 
@@ -81,5 +63,7 @@ function applyWhere(resultSet, whereString) {
   return applyWhereCondition(resultSet, where);
 }
 
-const filteredResultSet = applyWhere(resultSet, whereString);
-console.log(filteredResultSet);
+module.exports = {
+  parseWhere,
+  applyWhere,
+}
