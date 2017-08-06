@@ -65,17 +65,7 @@
     float: right;
 }
 
-
-.progress {
-    margin: 0 auto;
-    width: 50% !important;
-}
-
 .row {
-    text-align: center;
-}
-
-.prog {
     padding-top: 2%;
     padding-bottom: 2%;
 }

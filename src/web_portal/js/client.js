@@ -29,9 +29,6 @@ client.connect({
 * available to be picked from, and the queries results that are being sent back
 */
 function onConnect() {
-    console.log('Connected!');
-
-
     $('#statusBox').html('Connected');
     $('#statusBox').attr('class', 'label alert-success');
 
@@ -79,28 +76,29 @@ function onMessageArrived(message) {
 
     // If the topic is status, we know an Arduino is either connecting, or
     // has been disconnected
-    if (destination == "status") {
+    if (destination === "status") {
         if (message.payloadString == "online" && $.inArray(clientId, connectedClients) == -1) {
             connectedClients.push(clientId);
             createCheckBoxes(clientId);
         }
 
-        if (message.payloadString == "offline" && $.inArray(clientId, connectedClients) != -1) {
+        if (message.payloadString === "offline" && $.inArray(clientId, connectedClients) != -1) {
             connectedClients.splice($.inArray(clientId, connectedClients), 1);
             removeCheckboxes(clientId);
         }
     }
 
-    if (destination == "result") {
+    if (destination === "result") {
+        updateLoadingIconText('Received');
         displayResults(clientId, message.payloadString);
-        fillProgressBar(1, 100);
     } else {
         console.log("No results");
     }
 }
 
 /*
-* Purpose: When a message has been delivered, the progress bar will fill up.
+* TODO: remove this? it doesn't appear to be used anywhere.
+* Purpose: When a message has been delivered, the success alert text will update.
 * A message being delivered means the processing that this client does is finished,
 * and the message has been sent to the server.
 *
@@ -109,7 +107,7 @@ function onMessageArrived(message) {
  * it sent back. See mqttws31.js for more information
  */
 function onMessageDelivered(message) {
-    fillProgressBar(1, 66);
+    updateLoadingIconText('Delivered')
 }
 
 
@@ -143,6 +141,7 @@ function send() {
         return;
     }
     
+    // Note: this cannot be a falsy check (!valid....()) it must check type.
     if(validArduinoSelected(selectedArduinos) === false) {
         return;
     }
@@ -160,17 +159,13 @@ function send() {
             targets: selectedArduinos
         },
         success: function(result) {
-            console.log('Success');
         },
-        error: function() {
-            console.log('Error');
+        error: function(err) {
+            console.log('Error in send()');
+            console.log(err);
         }
 
     });
-
-    $('#successBox').show();
-    $('#successBox').fadeOut(3000);
-    fillProgressBar(1, 33);
 }
 
 
@@ -260,50 +255,26 @@ function displayResults(clientId, message) {
 
 
 /*
-* Purpose: this function fills up the progress bar in 3 steps. The first 1/3
-* of the bar gets filled after a message has been sent from the web client.
-* The second 1/3 of the bar gets filled up once a message has been delivered
-* to the server. Once a message has been received and written out on the
-* web client, it will fill up the whole progress bar.
-* After 2 seconds, the progress bar resets itself.
+* Purpose:
 *
-* @param int start the position the progress bar will start to fill at.
-* @param int finish the position the progress bar will finish filling at.
+*
 */
-function fillProgressBar(start, finish) {
-
-    var startingWidth = start;
-    var progressBar = $('.progress-bar');
-    var clear = setInterval(stopFill, 1);
-
-    function stopFill() {
-        if (startingWidth >= finish) {
-            clearInterval(clear);
-        } else {
-            startingWidth++;
-            progressBar.css('width', startingWidth + '%');
-            if (startingWidth <= 33) {
-                progressBar.innerHTML = "Message Sent...";
-            }
-            else if (startingWidth <= 66) {
-                progressBar.innerHTML = "Message Delivered...";
-            }
-            else if (startingWidth > 66) {
-                progressBar.innerHTML = "Message Received";
-                progressBar.className = "progress-bar progress-bar-success";
-
-                setTimeout(function () {
-                    progressBar.style.width = 0 + '%';
-                    progressBar.innerHTML = ""
-                }, 2000);
-
-            }
-
-        }
+function updateLoadingIconText(status) {
+    if(status === 'Delivered') {
+        $('.alert').find('strong').html('Message Delivered! awaiting results...');
+    } else {
+        $('.alert').find('strong').html('Message Received!');
+        $('.loader').find('svg').remove();
+        $('.loader').find('path').remove();
+        $('.loader').append('<span class="glyphicon glyphicon-ok" aria-hidden="true" style="margin: 0 auto;"></span>');
     }
 }
 
-
+/*
+* Purpose:
+*
+*
+*/
 function validQueryEntered() {
     $('.header_row').empty();
     if($('#publish').val() === '') {
@@ -319,6 +290,11 @@ function validQueryEntered() {
 }
 
 
+/*
+* Purpose:
+*
+*
+*/
 function validArduinoSelected(selectedArduinos) {
     $('.header_row').empty();
     if(selectedArduinos.length === 0) {
@@ -330,10 +306,25 @@ function validArduinoSelected(selectedArduinos) {
         }
 
     else {
-        $('.header_row').append('<div class="alert alert-success alert-dismissable">' +
-        '<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>' +
-        '<strong>Message Sent!</strong></div>');
+        $('.header_row').append(
+            '<div class="alert alert-success alert-dismissable">' +
+                '<div class="loader loader--style3" title="2">' +
+                '<svg version="1.1" id="loader-1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"' +
+                    'width="40px" height="40px" viewBox="0 0 50 50" style="enable-background:new 0 0 50 50;" xml:space="preserve">' +
+                '<path fill="#000" d="M43.935,25.145c0-10.318-8.364-18.683-18.683-18.683c-10.318,0-18.683,8.365-18.683,18.683h4.068c0-8.071,6.543-14.615,14.615-14.615c8.072,0,14.615,6.543,14.615,14.615H43.935z">' +
+                '<animateTransform attributeType="xml"' +
+                    'attributeName="transform"' +
+                    'type="rotate"' +
+                    'from="0 25 25"' +
+                    'to="360 25 25"' +
+                    'dur="0.6s"' +
+                    'repeatCount="indefinite"/>' +
+                '</path>' +
+                '</svg>' +
+                '</div>' +
+                '<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>' +
+                '<strong>Message Sent! awaiting results...</strong>' +
+            '</div>');
         return true;
     }
 }
-
