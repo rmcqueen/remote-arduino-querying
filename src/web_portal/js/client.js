@@ -86,13 +86,11 @@ function onMessageArrived(message) {
             connectedClients.splice($.inArray(clientId, connectedClients), 1);
             removeCheckboxes(clientId);
         }
-    }
-
-    if (destination === "result") {
-        displayResults(clientId, message.payloadString);
+    } else if (destination === "result") {
         updateLoadingIconText('Received');
+        displayResults(clientId, message.payloadString);
     } else {
-        console.log("No results");
+        updateLoadingIconText('Error');
     }
 }
 
@@ -162,6 +160,7 @@ function send() {
         success: function(result) {
         },
         error: function(err) {
+            updateLoadingIconText('Error');
             console.log('Error in send()');
             console.log(err);
         }
@@ -259,13 +258,20 @@ function displayResults(clientId, message) {
 * Purpose: update the text on the success banner to give the user an indication of where their query is at
 */
 function updateLoadingIconText(status) {
-    if(status === 'Delivered') {
+    if (status === 'Delivered') {
         $('.alert').find('strong').html('Message Delivered! awaiting results...');
-    } else {
+    } else if (status === 'Received') {
         $('.alert').find('strong').html('Message Received!');
         $('.loader').find('svg').remove();
         $('.loader').find('path').remove();
         $('.loader').append('<span class="glyphicon glyphicon-ok" aria-hidden="true" style="margin: 0 auto;"></span>');
+    } else {
+        $('.header_row').find('.alert').replaceWith(
+                '<div class="alert alert-danger alert-dismissable fade in">' +
+                '<span class="glyphicon glyphicon-remove" aria-hidden="true" style="margin: 0 auto;"></span>' +
+                '<button type="button" class="close" data-dismiss="alert" aria-label="close">&times;</button>' +
+                '<strong>Error:</strong> Error in query. Ensure the syntax is correct and try again.' +
+                '</div>');
     }
 }
 
@@ -277,7 +283,7 @@ function updateLoadingIconText(status) {
 */
 function validQueryEntered() {
     $('.header_row').empty();
-    if($('#publish').val() === '') {
+    if ($('#publish').val() === '') {
         $('.header_row').append('<div class="alert alert-danger alert-dismissable fade in">' +
         '<button type="button" class="close" data-dismiss="alert" aria-label="close">&times;</button>' +
         '<strong>Error:</strong> A query must be entered.' +
@@ -299,7 +305,7 @@ function validQueryEntered() {
 */
 function validArduinoSelected(selectedArduinos) {
     $('.header_row').empty();
-    if(selectedArduinos.length === 0) {
+    if (selectedArduinos.length === 0) {
         $('.header_row').append('<div class="alert alert-danger alert-dismissable fade in">' +
         '<button type="button" class="close" data-dismiss="alert" aria-label="close">&times;</button>' +
         '<strong>Error:</strong> An Arduino must be selected.' +
