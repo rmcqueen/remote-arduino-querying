@@ -5,8 +5,8 @@ const publishQueryData = require('./../publishQueryData.js');
 const { parseResultSet } = require('./../lib.js');
 const { applyWhere } = require('./../applyWhere.js');
 
-const nonTerminalPage = "{\"client\": \"test\", \"entries\": \"team\\nname:s;\\ndavid:name;\\nryan:name;\\ndustin:name;;EOP\"}";
-const terminalPage = "{\"client\": \"test\", \"entries\":\"spencer:name;\\n;EOR\"}";
+const nonTerminalPage = "team\nname:s;\ndavid:name;\nryan:name;\ndustin:name;;EOP";
+const terminalPage = "spencer:name;\n;EOR";
 
 function mockArduinoResponse(response) {
   // synchronous promise wrapper
