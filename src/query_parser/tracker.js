@@ -1,5 +1,5 @@
 const pg = require('pg');
-const connectionString = process.env.DATABASE_URL || 'postgres://localhost:5432/todo';
+const connectionString = process.env.DATABASE_URL || 'postgres://localhost:5432/arduino_query_tracker';
 
 function track(arduinoID) {
     pg.connect(connectionString, (err, client, done) => {
@@ -10,7 +10,6 @@ function track(arduinoID) {
         }
         client.query('INSERT INTO clients(arduinoID, status, updated_at) values($1, $2, $3)',
             [arduinoID, 'Processing Query', generateTimeStamp()]);
-        console.log(arduinoID + " is now being tracked.");
         query.on('end', () => {
             done();
             return;
