@@ -174,24 +174,29 @@ function appendcsvInputData(message) {
 * Purpose: enables a user to download the results of their query into a CSV
 * formatted file as 'results.csv'
 */
-function CSV_download() {
-    var data = csvInputData.split("\n");
-    var csvData = "data:text/csv;charset=utf-8,";
+$(document).ready(function () {
+    $("#exportButton").click(function () {
 
-    data.forEach(function(element, index) {
-        if (index < (data.length - 1)) {
-            csvData += element + "\n";
-        } else {
-            csvData += element;
-        }
+        const textAreaData = $("#resultArea").val();
+        const insertSquareBracket = "[" + textAreaData + "]";
+        console.log(textAreaData);
+
+        const csv = Papa.unparse(insertSquareBracket);
+
+        const combine = "data:text/csv;charset=utf-8," + csv;
+
+        console.log(csv);
+
+        const encodedUri = encodeURI(combine);
+        const download = document.createElement("a");
+        download.setAttribute("href", encodedUri);
+        download.setAttribute("download", "results.csv");
+        download.click();
+
+        return csv;
     });
 
-    var encodedUri = encodeURI(csvData);
-    var download = document.createElement("a");
-    download.setAttribute("href", encodedUri);
-    download.setAttribute("download", "results.csv");
-    download.click();
-}
+});
 
 
 /*
