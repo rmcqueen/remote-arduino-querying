@@ -42,7 +42,7 @@ function buildClientTuplePages(resultSet) {
   const clientSchemasProcessed = [];
   const clientTuplePages = resultSet.map(result => {
     const client = result.client;
-    result.entries = result.entries.replace(';EOP', '').replace('\n;EOR', '').split('\n');
+    result.entries = result.entries.replace('\n\n;EOP\u0000', '').replace('\n;EOR\u0000', '').split('\n');
     if (clientSchemasProcessed.indexOf(client) === -1) {
       result.entries = result.entries.filter((entry, idx) => {
         return idx > 1;
@@ -83,8 +83,10 @@ function flattenClientTuples(clientTuples) {
 function resultSetNeedsParsing(resultSet) {
   const resultSetString = JSON.stringify(resultSet);
   const blacklist = ['Table created', 'Record inserted']
-  const filtered = blacklist.filter(response => resultSetString.indexOf(response) === -1);
-  return filtered.length !== 0;
+  console.log(resultSetString);
+  const filtered = blacklist.filter(response => resultSetString.indexOf(response) !== -1);
+  console.log(filtered);
+  return filtered.length === 0;
 }
 
 function parseResultSet(resultSet) {

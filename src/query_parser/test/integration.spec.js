@@ -5,8 +5,8 @@ const publishQueryData = require('./../publishQueryData.js');
 const { parseResultSet } = require('./../lib.js');
 const { applyWhere } = require('./../applyWhere.js');
 
-const nonTerminalPage = "team\nname:s;\ndavid:name;\nryan:name;\ndustin:name;;EOP";
-const terminalPage = "spencer:name;\n;EOR";
+const nonTerminalPage = "team\nname:s;\ndavid:name;\nryan:name;\ndustin:name;;\nEOP\u0000";
+const terminalPage = "spencer:name;\n;EOR\u0000";
 
 function mockArduinoResponse(response) {
   // synchronous promise wrapper
@@ -38,7 +38,7 @@ describe('Arduino responses', () => {
       const targets = ['test'];
       return publishQueryData(queryString, targets, testCallback)
         .then(resultSet => {
-          const expectedResultSet = JSON.parse("[[{\"client\": \"test\", \"entries\": \"team\\nname:s;\\ndavid:name;\\nryan:name;\\ndustin:name;;EOP\"}, {\"client\": \"test\", \"entries\":\"spencer:name;\\n;EOR\"}]]");
+          const expectedResultSet = JSON.parse("[[{\"client\": \"test\", \"entries\": \"team\\nname:s;\\ndavid:name;\\nryan:name;\\ndustin:name;;\\nEOP\\u0000\"}, {\"client\": \"test\", \"entries\":\"spencer:name;\\n;EOR\\u0000\"}]]");
           expect(resultSet).to.deep.equal(expectedResultSet);
         });
     });
