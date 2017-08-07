@@ -3,7 +3,6 @@ function parseOperator(whereClause) {
   const operators = ['>', '=', '<', 'like'];
   const operator = operators.filter(operator => normalizedWhereClause.indexOf(operator) !== -1);
   if (operator[0]) {
-    console.log(operator[0])
     return operator[0];
   }
   throw new Error('Invalid operand in WHERE clause');
@@ -64,6 +63,7 @@ function applyWhere(resultSet, whereString) {
 }
 
 module.exports = {
+  parseOperator,
   parseWhere,
   applyWhere,
 }
