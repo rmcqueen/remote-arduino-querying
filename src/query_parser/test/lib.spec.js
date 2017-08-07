@@ -112,5 +112,15 @@ describe('lib', () => {
       const queryParser = getQueryParser(sql);
       expect(queryParser).to.equal(parsers.parseSelect);
     });
+
+    it('throws an error when it cannot resolve the parser', () => {
+      try {
+        const sql = 'INVALID SQL';
+        const queryParser = getQueryParser(sql);
+        expect(false).to.equal(true);
+      } catch(err) {
+        expect(true).to.equal(true)
+      }
+    });
   });
 });

@@ -54,7 +54,6 @@ function applyWhereCondition(resultSet, where) {
   const columnNumber = Object.keys(resultSet.attributes).indexOf(field);
   const filterOperation = getFilterOperation(operator);
   const filteredClientTuples = Object.keys(resultSet.clientTuples).reduce((acc, client) => {
-    // split tuples on ,
     // apply where to the ith tuple, where i = index of operand in attributes.keys
     const filteredTuples = resultSet.clientTuples[client].filter(tuple => {
       const fieldValue = tuple.split(',')[columnNumber]; // assumes tuples are always ordered the same way as attributes.keys() in resultSet
@@ -67,7 +66,7 @@ function applyWhereCondition(resultSet, where) {
 
 function applyWhere(resultSet, selectStatement) {
   const whereClause = parseWhereClauseFromSelect(selectStatement);
-  if (whereClause === false) return resultSet;
+  if (resultSet === false || whereClause === false) return resultSet;
   const where = parseWhere(whereClause);
   return applyWhereCondition(resultSet, where);
 }

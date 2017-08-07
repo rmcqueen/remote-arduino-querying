@@ -79,7 +79,15 @@ function flattenClientTuples(clientTuples) {
   });
 }
 
+function resultSetNeedsParsing(resultSet) {
+  const resultSetString = JSON.stringify(resultSet);
+  const blacklist = ['Table created', 'Record inserted']
+  const filtered = blacklist.filter(response => resultSetString.indexOf(response) === -1);
+  return filtered.length === 0;
+}
+
 function parseResultSet(resultSet) {
+  if (!resultSetNeedsParsing(resultSet)) return false;
   const attributes = getResultSetAttributes(resultSet);
   const clientTuplePages = resultSet.map(buildClientTuplePages);
   const clientTuples = clientTuplePages.map(groupTuplePagesByClient);
