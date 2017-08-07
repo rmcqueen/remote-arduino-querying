@@ -29,7 +29,8 @@ describe('lib', () => {
   describe('getResultSetAttributes', () => {
     it('builds an array of client tuple mappings', () => {
       const expectedAttributes = { name: 'String' };
-      const attributes = getResultSetAttributes(resultSet);
+      const nestedResultSet = JSON.parse("[[{\"client\": \"Arduino1\", \"entries\": \"team\\nname:s;\\ndavid:name;\\nryan:name;\\ndustin:name;;EOP\"}, {\"client\": \"Arduino1\", \"entries\":\"spencer:name;\\n;EOR\"}]]");
+      const attributes = getResultSetAttributes(nestedResultSet);
       expect(attributes).to.deep.equal(expectedAttributes);
     });
   });
@@ -67,9 +68,8 @@ describe('lib', () => {
           ]
         }
       }
-      const resultSetObj = JSON.parse("[{\"client\": \"Arduino1\", \"entries\": \"team\\nname:s;\\ndavid:name;\\nryan:name;\\ndustin:name;;EOP\"}, {\"client\": \"Arduino1\", \"entries\":\"spencer:name;\\n;EOR\"}]");
+      const resultSetObj = JSON.parse("[[{\"client\": \"Arduino1\", \"entries\": \"team\\nname:s;\\ndavid:name;\\nryan:name;\\ndustin:name;;EOP\"}, {\"client\": \"Arduino1\", \"entries\":\"spencer:name;\\n;EOR\"}]]");
       const parsedResult = parseResultSet(resultSetObj);
-      console.log(JSON.stringify(parsedResult,  null, 2));
       expect(parsedResult).to.deep.equal(expectedParsedResult);
     });
   });

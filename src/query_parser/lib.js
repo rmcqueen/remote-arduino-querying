@@ -27,7 +27,7 @@ function getQueryParser(operationType) {
 }
 
 function getResultSetAttributes(resultSet) {
-  const schemaString = resultSet[0].entries.split('\n')[1]; // Assumes pages remained serialized for each client. 
+  const schemaString = resultSet[0][0].entries.split('\n')[1]; // Assumes pages remained serialized for each client. 
   const attributes = schemaString.split(';') // tokenize compressed schema elements
     .filter((val, idx, arr) => idx < arr.length - 1) // remove junk element caused by terminal ;
     .reduce((acc, attribute) => { // reduce the tokens to a single mapping of attribute name to data type
@@ -72,13 +72,21 @@ function groupTuplePagesByClient(clientTuplePages) {
   }, {});
 }
 
+function flattenClientTuples(clientTuples) {
+  return clientTuples.reduce((acc, clientTuple) => {
+    const client = Object.keys(clientTuple)[0];
+    return Object.assign(acc, { [client]: clientTuple[client] });
+  });
+}
+
 function parseResultSet(resultSet) {
   const attributes = getResultSetAttributes(resultSet);
-  const clientTuplePages = buildClientTuplePages(resultSet);
-  const clientTuples = groupTuplePagesByClient(clientTuplePages);
+  const clientTuplePages = resultSet.map(buildClientTuplePages);
+  const clientTuples = clientTuplePages.map(groupTuplePagesByClient);
+  const flattenedClientTuples = flattenClientTuples(clientTuples);
   return {
     attributes: attributes,
-    clientTuples: clientTuples,
+    clientTuples: flattenedClientTuples,
   };
 }
 

@@ -1,6 +1,6 @@
 
 const { expect } = require('chai');
-const {
+const { 
   parseWhereClauseFromSelect,
   parseOperator,
   parseWhere,
@@ -85,7 +85,7 @@ describe('applyWhere.js', () => {
       const filteredResultSet = applyWhere(resultSet, selectStatement);
       expect(filteredResultSet).to.deep.equal(expectedResultSet);
     });
-    
+
     it('returns the resultSet passed in if no WHERE clause in select', () =>  {
       const filteredResultSet = applyWhere(resultSet, selectWithNoWhere);
       expect(filteredResultSet).to.deep.equal(resultSet);

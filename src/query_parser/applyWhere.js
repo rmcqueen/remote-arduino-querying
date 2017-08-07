@@ -1,3 +1,5 @@
+const { parseResultSet } = require('./lib.js')
+
 function parseWhereClauseFromSelect(selectStatement) {
   const whereClauseIndex = selectStatement.toLowerCase().indexOf('where');
   if (whereClauseIndex === -1) return false;
