@@ -26,7 +26,7 @@ module.exports = (queryString, targets, testCallback = false) => {
         return client.on('message', (topic, payload) => {
           console.log('message received');
           console.log(topic, payload.toString());
-          //result.push(JSON.parse(payload.toString()));
+          result.push(JSON.parse(payload.toString()));
           if (payload.toString().indexOf(';EOR') !== -1) {
             client.end();
             return resolve(result);

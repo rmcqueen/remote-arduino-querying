@@ -1,11 +1,14 @@
 
 const { expect } = require('chai');
 const {
+  parseWhereClauseFromSelect,
   parseOperator,
   parseWhere,
   applyWhere,
 } = require('./../applyWhere.js');
 
+const selectStatement = 'SELECT * FROM team WHERE name LIKE spencer';
+const selectWithNoWhere = 'SELECT * FROM team';
 const whereClause = 'WHERE name LIKE spencer';
 const resultSet = {
   "attributes": {
@@ -29,6 +32,19 @@ const resultSet = {
 }
 
 describe('applyWhere.js', () => {
+  describe('parseWhereFromSelect()', ()=> {
+    it('can parse the WHERE clause from a select statement', () => {
+      const parsedWhereClause = parseWhereClauseFromSelect(selectStatement);
+      expect(parsedWhereClause).to.equal(whereClause);
+    });
+
+    it('returns false when no where clause present', () => {
+      const selectWithNoWhere = 'SELECT * FROM team';
+      const parsedWhereClause = parseWhereClauseFromSelect(selectWithNoWhere);
+      expect(parsedWhereClause).to.equal(false);
+    });
+  });
+
   describe('parseOperator()', ()=> {
     it('can parse and normalize to lower case the operator of a WHERE clause correctly', () => {
       const expectedParsedOperator = 'like';
@@ -66,8 +82,13 @@ describe('applyWhere.js', () => {
           Arduino2: [ 'spencer,24' ]
         }
       };
-      const filteredResultSet = applyWhere(resultSet, whereClause);
+      const filteredResultSet = applyWhere(resultSet, selectStatement);
       expect(filteredResultSet).to.deep.equal(expectedResultSet);
     });
-  })
-})
+    
+    it('returns the resultSet passed in if no WHERE clause in select', () =>  {
+      const filteredResultSet = applyWhere(resultSet, selectWithNoWhere);
+      expect(filteredResultSet).to.deep.equal(resultSet);
+    });
+  });
+});

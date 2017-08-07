@@ -1,3 +1,9 @@
+function parseWhereClauseFromSelect(selectStatement) {
+  const whereClauseIndex = selectStatement.toLowerCase().indexOf('where');
+  if (whereClauseIndex === -1) return false;
+  return selectStatement.substr(whereClauseIndex);
+}
+
 function parseOperator(whereClause) {
   const normalizedWhereClause = whereClause.toLowerCase();
   const operators = ['>', '=', '<', 'like'];
@@ -57,12 +63,15 @@ function applyWhereCondition(resultSet, where) {
   return Object.assign({}, resultSet, { clientTuples: filteredClientTuples });
 }
 
-function applyWhere(resultSet, whereString) {
-  const where = parseWhere(whereString);
+function applyWhere(resultSet, selectStatement) {
+  const whereClause = parseWhereClauseFromSelect(selectStatement);
+  if (whereClause === false) return resultSet;
+  const where = parseWhere(whereClause);
   return applyWhereCondition(resultSet, where);
 }
 
 module.exports = {
+  parseWhereClauseFromSelect,
   parseOperator,
   parseWhere,
   applyWhere,
