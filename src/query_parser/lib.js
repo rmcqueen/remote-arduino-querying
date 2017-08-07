@@ -27,7 +27,6 @@ function getQueryParser(operationType) {
 }
 
 function getResultSetAttributes(resultSet) {
-  console.log(resultSet[0][0].entries.split('\n'));
   const schemaString = resultSet[0][0].entries.split('\n')[1]; // Assumes pages remained serialized for each client. 
   const attributes = schemaString.split(';') // tokenize compressed schema elements
     .filter((val, idx, arr) => idx < arr.length - 1) // remove junk element caused by terminal ;
@@ -83,9 +82,7 @@ function flattenClientTuples(clientTuples) {
 function resultSetNeedsParsing(resultSet) {
   const resultSetString = JSON.stringify(resultSet);
   const blacklist = ['Table created', 'Record inserted']
-  console.log(resultSetString);
   const filtered = blacklist.filter(response => resultSetString.indexOf(response) !== -1);
-  console.log(filtered);
   return filtered.length === 0;
 }
 
