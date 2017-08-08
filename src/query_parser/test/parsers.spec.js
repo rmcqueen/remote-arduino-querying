@@ -27,7 +27,6 @@ describe('parsers', () => {
     it('produces the correct compressed table and field combination', () => {
       const expectedCompressedSelect = { table: 'team' };
       const compressedSelect = parseSelect(selectAll);
-      console.log(compressedSelect);
       expect(compressedSelect).to.deep.equal(expectedCompressedSelect);
     });
   });

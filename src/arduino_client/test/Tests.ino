@@ -1,5 +1,3 @@
-#line 2 "A_client.ino"
-
 //Check status of ethernet in setup
 int ethernetStatus;
 

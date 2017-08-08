@@ -27,7 +27,7 @@ function getQueryParser(operationType) {
 }
 
 function getResultSetAttributes(resultSet) {
-  const schemaString = resultSet[0].entries.split('\n')[1]; // Assumes pages remained serialized for each client. 
+  const schemaString = resultSet[0][0].entries.split('\n')[1]; // Assumes pages remained serialized for each client. 
   const attributes = schemaString.split(';') // tokenize compressed schema elements
     .filter((val, idx, arr) => idx < arr.length - 1) // remove junk element caused by terminal ;
     .reduce((acc, attribute) => { // reduce the tokens to a single mapping of attribute name to data type
@@ -41,7 +41,7 @@ function buildClientTuplePages(resultSet) {
   const clientSchemasProcessed = [];
   const clientTuplePages = resultSet.map(result => {
     const client = result.client;
-    result.entries = result.entries.replace(';EOP', '').replace('\n;EOR', '').split('\n');
+    result.entries = result.entries.replace('\n\n;EOP\u0000', '').replace('\n;EOR\u0000', '').split('\n');
     if (clientSchemasProcessed.indexOf(client) === -1) {
       result.entries = result.entries.filter((entry, idx) => {
         return idx > 1;
@@ -50,10 +50,11 @@ function buildClientTuplePages(resultSet) {
     }
     const compressedTuples = result.entries;
     const tuplePages = compressedTuples.map(row => {
-      const fields = row.split(':').filter((datum, idx) => (idx + 1) % 2); // remove field names stored in compressed rows
+      const fields = row.split(';').map(attr => attr.split(':')[0]).join() // remove field names stored in compressed rows
       return fields;
     });
-    const tuples = flatten(tuplePages);
+    const tuples = flatten(tuplePages).filter(tuple => tuple != '');
+    console.log(tuples);
     return {
       client: client,
       tuples: tuples,
@@ -72,13 +73,29 @@ function groupTuplePagesByClient(clientTuplePages) {
   }, {});
 }
 
+function flattenClientTuples(clientTuples) {
+  return clientTuples.reduce((acc, clientTuple) => {
+    const client = Object.keys(clientTuple)[0];
+    return Object.assign(acc, { [client]: clientTuple[client] });
+  });
+}
+
+function resultSetNeedsParsing(resultSet) {
+  const resultSetString = JSON.stringify(resultSet);
+  const blacklist = ['Table created', 'Record inserted']
+  const filtered = blacklist.filter(response => resultSetString.indexOf(response) !== -1);
+  return filtered.length === 0;
+}
+
 function parseResultSet(resultSet) {
+  if (!resultSetNeedsParsing(resultSet)) return false;
   const attributes = getResultSetAttributes(resultSet);
-  const clientTuplePages = buildClientTuplePages(resultSet);
-  const clientTuples = groupTuplePagesByClient(clientTuplePages);
+  const clientTuplePages = resultSet.map(buildClientTuplePages);
+  const clientTuples = clientTuplePages.map(groupTuplePagesByClient);
+  const flattenedClientTuples = flattenClientTuples(clientTuples);
   return {
     attributes: attributes,
-    clientTuples: clientTuples,
+    clientTuples: flattenedClientTuples,
   };
 }
 
