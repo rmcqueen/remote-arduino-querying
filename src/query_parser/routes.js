@@ -18,4 +18,5 @@ module.exports = (app) => {
       .then(parsedResultSet => applyWhere(parsedResultSet, queryString))
       .then(result => res.send(result));
   });
+
 };
