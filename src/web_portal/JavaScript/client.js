@@ -30,9 +30,9 @@ client.connect({
 */
 function onConnect() {
     console.log('Connected!');
+    $('#statusBox').html('Connected');
+    $('#statusBox').attr('class', 'label alert-success');
 
-    $("#statusBox").html("Connected");
-    $('#statusBox').attr("class", "label alert-success");
 
     client.subscribe("status/#", {
         qos: 2
@@ -55,8 +55,10 @@ function onConnectionLost(responseObject) {
         console.log("onConnectionLost:" + responseObject.errorMessage);
     }
 
-    $("#statusBox").html("Disconnected");
-    $('#statusBox').attr("class", "label label-warning");
+
+    $('#statusBox').html('Disconnected');
+    $('#statusBox').attr('class', 'label label-warning');
+
 }
 
 
@@ -119,11 +121,11 @@ function onMessageDelivered(message) {
 */
 function send() {
 	// Get the query from the query box
-    var userQuery = $("#publish").val();
+    var userQuery = $('#publish').val();
     var selectedArduinos = [];
 
 	// Reset the values within the text area
-    $("#publish").val("");
+    $('#publish').val("");
 
 	// Return if there is no available MQTT client to use
     if (!client) {
@@ -131,32 +133,31 @@ function send() {
     }
 
     // Go over each checked checkbox, and append them to a list
-    $("input[type=checkbox]").each(function() {
+    $('input[type=checkbox]').each(function() {
         if (this.checked) {
             selectedArduinos.push(this.id);
         }
     });
-
 	// Perform an AJAX request to the server for query parsing
     $.ajax({
-        url: "http:localhost:3000/publish_query",
+        url: "http://localhost:3000/publish_query",
         type: "get",
         data: {
             queryString: userQuery,
             targets: selectedArduinos
         },
-
         success: function(result) {
-            displayResults(clientId, result);
-            fillProgressBar(1, 100);
-            if (userQuery != "") {
-                $("#successBox").show();
-                $("#successBox").fadeOut(3000);
-                fillProgressBar(1, 33);
-            }
-
+            console.log('Success');
+        },
+        error: function() {
+            console.log('Error');
         }
+
     });
+
+    $('#successBox').show();
+    $('#successBox').fadeOut(3000);
+    fillProgressBar(1, 33);
 }
 
 
@@ -173,24 +174,29 @@ function appendcsvInputData(message) {
 * Purpose: enables a user to download the results of their query into a CSV
 * formatted file as 'results.csv'
 */
-function CSV_download() {
-    var data = csvInputData.split("\n");
-    var csvData = "data:text/csv;charset=utf-8,";
+$(document).ready(function () {
+    $("#exportButton").click(function () {
 
-    data.forEach(function(element, index) {
-        if (index < (data.length - 1)) {
-            csvData += element + "\n";
-        } else {
-            csvData += element;
-        }
+        const textAreaData = $("#resultArea").val();
+        const insertSquareBracket = "[" + textAreaData + "]";
+        console.log(textAreaData);
+
+        const csv = Papa.unparse(insertSquareBracket);
+
+        const combine = "data:text/csv;charset=utf-8," + csv;
+
+        console.log(csv);
+
+        const encodedUri = encodeURI(combine);
+        const download = document.createElement("a");
+        download.setAttribute("href", encodedUri);
+        download.setAttribute("download", "results.csv");
+        download.click();
+
+        return csv;
     });
 
-    var encodedUri = encodeURI(csvData);
-    var download = document.createElement("a");
-    download.setAttribute("href", encodedUri);
-    download.setAttribute("download", "results.csv");
-    download.click();
-}
+});
 
 
 /*
@@ -201,7 +207,7 @@ function CSV_download() {
 * checkbox wrapped in a div
 */
 function createCheckBoxes(name) {
-    container = $("#checkbox");
+    container = $('#checkbox');
     $("<input />", {
         type: "checkbox",
         id: name,
@@ -236,11 +242,12 @@ function removeCheckboxes(name) {
 * came from
 *
 * @param string message the payloadString that was obtained from the user's query
-* should show what values were requsted in the database (if they exist)
+* should show what values were requested in the database (if they exist)
 */
 function displayResults(clientId, message) {
     const newResultEntry = `${clientId}: {csv: ${message}},`
     $("#resultArea").append(newResultEntry);
+  
     appendcsvInputData("\n" + clientId + ":\n" + message);
 }
 
