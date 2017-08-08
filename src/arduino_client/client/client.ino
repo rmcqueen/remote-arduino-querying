@@ -17,17 +17,17 @@
 
 //Network
 byte mac[] = {
-  0x00, 0xAA, 0xBB, 0xCC, 0xDD, 0x02
+  0x00, 0xAA, 0xBB, 0xCC, 0xDD, 0x06
 };
 
 EthernetClient c;
 IPStack ipstack(c);
 
 //MQTT
-char hostname[] = "192.168.1.68"; // CHANGE ME TO YOUR HOSTNAME
-const char* clientId = "Arduino2";
-const char* topic = "query/Arduino2";
-const char* outTopic = "result/Arduino2";
+char hostname[] = "192.168.0.12"; // CHANGE ME TO YOUR HOSTNAME
+const char* clientId = "Arduino3";
+const char* topic = "query/Arduino3";
+const char* outTopic = "result/Arduino3";
 const int MAX_MQTT_PACKET_SIZE = 512;
 MQTT::Client<IPStack, Countdown, MAX_MQTT_PACKET_SIZE> client = MQTT::Client<IPStack, Countdown, MAX_MQTT_PACKET_SIZE>(ipstack);
 
@@ -41,8 +41,8 @@ int* ptrRecordCount; //TODO filthy hack, clean me
 int recordCount;
 
 //Errors
-int error_t = -1;
-int success_t = 0;
+#define error_t -1;
+#define success_t 0;
 
 int flushSkipList(Dictionary <int, ion_value_t > *dict) {
   Serial.println("Closing SkipList...");
@@ -118,7 +118,7 @@ int connect() {
   message.retained = true;
   message.payload = (void*)buf;
   message.payloadlen = strlen(buf);
-  client.publish("status/Arduino2", message);
+  client.publish("status/Arduino3", message);
   client.subscribe(topic, MQTT::QOS2, messageArrived);
   if (client.isConnected()) {
     Serial.println("Connected!");
@@ -286,7 +286,7 @@ int messageArrived(MQTT::MessageData& md) {
   char* tableName = root["query"]["table"];
 
   // create table
-  if ((String) opCode == "c") {
+  if (*opCode == 'c') {
     char* fieldString = root["query"]["fields"];
     char* input = malloc(sizeof(char) * strlen(fieldString) + 1);
     strcpy(input, fieldString);
@@ -295,14 +295,8 @@ int messageArrived(MQTT::MessageData& md) {
     return success_t;
   }
 
-  // describe table
-  if ((String) opCode == "d") {
-    describeTable(tableName);
-    return success_t;
-  }
-
   // insert into table
-  if ((String) opCode == "i") {
+  if (*opCode == 'i') {
     char* fields = root["query"]["fields"];
     char* input = malloc(sizeof(char) * strlen(fields) + 1);
     strcpy(input, fields);
@@ -313,7 +307,7 @@ int messageArrived(MQTT::MessageData& md) {
   }
 
   // select from table
-  if ((String) opCode == "s") {
+  if (*opCode == 's') {
     selectAll(tableName);
     return success_t;
   }
