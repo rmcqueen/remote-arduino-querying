@@ -1,6 +1,10 @@
-#include <ArduinoJson.h>
 #define MQTTCLIENT_QOS2 1
 #define MAX_INCOMING_Q0S2_MESSAGES 10
+#define error_t -1
+#define success_t 0
+#define valueSize 32
+
+#include <ArduinoJson.h>
 #include <MQTTClient.h>
 #include <SD.h>
 #include <SPI.h>
@@ -17,7 +21,7 @@
 
 //Network
 byte mac[] = {
-  0x00, 0xAA, 0xBB, 0xCC, 0xDD, 0x06
+  0x00, 0xAA, 0xBB, 0xCC, 0xDD, 0x09
 };
 
 EthernetClient c;
@@ -28,6 +32,7 @@ char hostname[] = "192.168.0.12"; // CHANGE ME TO YOUR HOSTNAME
 const char* clientId = "Arduino3";
 const char* topic = "query/Arduino3";
 const char* outTopic = "result/Arduino3";
+const char* statusTopic = "status/Arduino3";
 const int MAX_MQTT_PACKET_SIZE = 512;
 MQTT::Client<IPStack, Countdown, MAX_MQTT_PACKET_SIZE> client = MQTT::Client<IPStack, Countdown, MAX_MQTT_PACKET_SIZE>(ipstack);
 
@@ -35,31 +40,28 @@ unsigned long lastMillis = 0;
 
 //Tables
 Dictionary < int, void* > *tables = new SkipList < int, void* > (key_type_numeric_signed, sizeof(int), sizeof(void*), 4);
-Dictionary < int, void* > *maxTableSize = new SkipList < int, void* > (key_type_numeric_signed, sizeof(int), 50, 4);
+Dictionary < int, void* > *maxTableSize = new SkipList < int, void* > (key_type_numeric_signed, sizeof(int), valueSize, 4);
 int tableSize = sizeof(*maxTableSize);
 int* ptrRecordCount; //TODO filthy hack, clean me
 int recordCount;
-
-//Errors
-#define error_t -1;
-#define success_t 0;
 
 int flushSkipList(Dictionary <int, ion_value_t > *dict) {
   Serial.println("Closing SkipList...");
   char *tableName = dict->get(1); // all dictionaries have the table name in the first
   FILE *dataFile;
   dataFile = fopen(tableName, "w+b");
+  if(!dataFile) return error_t;
   Cursor< int, void* > *tableCursor = dict->allRecords();
   int recordCount = 0;
   int *key = malloc(sizeof(int));
-  char *value = malloc(16);
+  char *value = malloc(valueSize);
   while (tableCursor->next()) {
     int thisKey = tableCursor->getKey();
     memcpy(key, &thisKey, sizeof(int));
-    memcpy(value, tableCursor->getValue(), 16);
+    memcpy(value, tableCursor->getValue(), valueSize);
     printf("%d,%s\n", *key, value);
     fwrite(key, sizeof(int), 1, dataFile);
-    fwrite(value, 16, 1, dataFile);
+    fwrite(value, valueSize, 1, dataFile);
     recordCount++;
   }
   free(key);
@@ -81,9 +83,9 @@ int openSkipList(Dictionary <int, ion_value_t > *dict, char* tableName) {
   fseek(dataFile, 0, SEEK_SET);
   for (int i = 0; i < recordCount; i++) {
     int *key = malloc(sizeof(int));
-    char *value = malloc(16);
+    char *value = malloc(valueSize);
     fread(key, sizeof(int), 1, dataFile);
-    fread(value, 16, 1, dataFile);
+    fread(value, valueSize, 1, dataFile);
     printf("%d,%s\n", *key, value);
     dict->insert(*key, value);
   }
@@ -104,7 +106,7 @@ int connect() {
   MQTTPacket_connectData data = MQTTPacket_connectData_initializer;
   data.willFlag = 1;
   data.clientID.cstring = clientId;                               //Set for each Arduino
-  data.will.topicName.cstring = strcat("status/", clientId);                  //Set to status/ <ID>
+  data.will.topicName.cstring = statusTopic;                  //Set to status/ <ID>
   data.will.qos = 2;
   data.will.retained = 1;
   data.will.message.cstring = (char*) "offline";
@@ -156,17 +158,6 @@ int createTable(char* tableName, char* fieldString) {
   Serial.println("Finished creating table");
   flushSkipList(table);
   return success_t;
-}
-
-void describeTable(char* tableName) {
-  void *tableAddress = tables->get((char*) stringToInt(tableName));
-  Cursor< int, void* > *my_cursor = ((Dictionary< int, ion_value_t>*) tableAddress)->allRecords();
-  String result = "";
-  while (my_cursor->next()) {
-    char* value = my_cursor->getValue();
-    result = result + (String) result + "\n";
-    Serial.println((String)value);
-  }
 }
 
 /**
@@ -222,8 +213,8 @@ char* selectAll(char* tableName) {
     }
     value = my_cursor->getValue();
     result = realloc(result, (sizeof(char) * (strlen(value) + strlen(result)) + 1));
-    strcat(result, "\n");
     strcat(result, value);
+    strcat(result, "\n");
     recordsBuffered++;
   }
   value = ";EOR";
