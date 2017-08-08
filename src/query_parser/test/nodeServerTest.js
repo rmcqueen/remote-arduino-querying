@@ -7,9 +7,7 @@ chai.use(chaiHttp);
 
 describe('Server connection.', () => {
 
-    // I need to test this at home before I do a pull request
-
-    it('should pass if an arduino is connected and moqutte is running', (done) => {
+    it('should pass if connection to the server is successful', (done) => {
         chai.request(server)
             .get('/publish_query/')
             .query({queryString: 'CREATE TABLE team(name string)', targets: 'Arduino1'})
@@ -39,13 +37,4 @@ describe('Server connection.', () => {
                 done();
             });
     }).timeout(5000);
-
-    it('should connect to the node.js server', (done) => {
-        chai.request(server)
-            .get('/server_connection_test')
-            .end(function(err, res) {
-                expect(res).to.have.status(200);
-                done();
-            });
-    });
 });

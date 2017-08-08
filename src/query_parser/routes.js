@@ -15,7 +15,4 @@ module.exports = (app) => {
       .then(result => res.send(result));
   });
 
-  app.get('/server_connection_test', (req, res) => {
-    res.send("Connection successful");
-  })
 };
