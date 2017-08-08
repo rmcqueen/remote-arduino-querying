@@ -9,7 +9,7 @@ const {
   parseResultSet,
 } = require('../lib.js');
 
-const resultSet = JSON.parse("[{\"client\": \"Arduino1\", \"entries\": \"team\\nname:s;\\ndavid:name;\\nryan:name;\\ndustin:name;;EOP\"}, {\"client\": \"Arduino1\", \"entries\":\"spencer:name;\\n;EOR\"}]");
+const resultSet = JSON.parse("[{\"client\": \"Arduino1\", \"entries\": \"team\\nname:s;\\ndavid:name;\\nryan:name;\\ndustin:name;\\n\\n;EOP\\u0000\"}, {\"client\": \"Arduino1\", \"entries\":\"spencer:name;\\n;EOR\\u0000\"}]");
 
 // Test Data
 const createTable = 'CREATE TABLE team(name string, age int);';
@@ -29,7 +29,8 @@ describe('lib', () => {
   describe('getResultSetAttributes', () => {
     it('builds an array of client tuple mappings', () => {
       const expectedAttributes = { name: 'String' };
-      const attributes = getResultSetAttributes(resultSet);
+      const nestedResultSet = JSON.parse("[[{\"client\": \"Arduino1\", \"entries\": \"team\\nname:s;\\ndavid:name;\\nryan:name;\\ndustin:name;\\n\\n;EOP\\u0000\"}, {\"client\": \"Arduino1\", \"entries\":\"spencer:name;\\n;EOR\\u0000\"}]]");
+      const attributes = getResultSetAttributes(nestedResultSet);
       expect(attributes).to.deep.equal(expectedAttributes);
     });
   });
@@ -37,8 +38,8 @@ describe('lib', () => {
   describe('buildClientTuplePages', () => {
     it('builds an array of client tuple mappings', () => {
       const expectedClientTuplePages = [
-        { client: 'Arduino1', tuples: [ 'david', 'ryan', 'dustin' ] },
-        { client: 'Arduino1', tuples: [ 'spencer' ] }
+        { client: 'Arduino1', tuples: [ 'david,', 'ryan,', 'dustin,' ] },
+        { client: 'Arduino1', tuples: [ 'spencer,' ] }
       ];
       const clientTuplePages = buildClientTuplePages(resultSet);
       expect(clientTuplePages).to.deep.equal(expectedClientTuplePages);
@@ -60,14 +61,14 @@ describe('lib', () => {
         },
         clientTuples: {
           Arduino1: [
-            'david',
-            'ryan',
-            'dustin',
-            'spencer',
+            'david,',
+            'ryan,',
+            'dustin,',
+            'spencer,',
           ]
         }
       }
-      const resultSetObj = JSON.parse("[{\"client\": \"Arduino1\", \"entries\": \"team\\nname:s;\\ndavid:name;\\nryan:name;\\ndustin:name;;EOP\"}, {\"client\": \"Arduino1\", \"entries\":\"spencer:name;\\n;EOR\"}]");
+      const resultSetObj = JSON.parse("[[{\"client\": \"Arduino1\", \"entries\": \"team\\nname:s;\\ndavid:name;\\nryan:name;\\ndustin:name;\\n\\n;EOP\\u0000\"}, {\"client\": \"Arduino1\", \"entries\":\"spencer:name;\\n;EOR\\u0000\"}]]");
       const parsedResult = parseResultSet(resultSetObj);
       expect(parsedResult).to.deep.equal(expectedParsedResult);
     });
@@ -110,6 +111,16 @@ describe('lib', () => {
       const sql = selectAll;
       const queryParser = getQueryParser(sql);
       expect(queryParser).to.equal(parsers.parseSelect);
+    });
+
+    it('throws an error when it cannot resolve the parser', () => {
+      try {
+        const sql = 'INVALID SQL';
+        const queryParser = getQueryParser(sql);
+        expect(false).to.equal(true);
+      } catch(err) {
+        expect(true).to.equal(true)
+      }
     });
   });
 });

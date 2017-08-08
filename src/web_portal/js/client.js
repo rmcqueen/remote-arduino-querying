@@ -29,6 +29,7 @@ client.connect({
 * available to be picked from, and the queries results that are being sent back
 */
 function onConnect() {
+    console.log('Connected!');
     $('#statusBox').html('Connected');
     $('#statusBox').attr('class', 'label alert-success');
 
@@ -175,30 +176,6 @@ function send() {
 */
 function appendcsvInputData(message) {
     csvInputData += message + "\n";
-}
-
-
-/*
-* Purpose: enables a user to download the results of their query into a CSV
-* formatted file as 'results.csv'
-*/
-function CSV_download() {
-    var data = csvInputData.split("\n");
-    var csvData = "data:text/csv;charset=utf-8,";
-
-    data.forEach(function(element, index) {
-        if (index < (data.length - 1)) {
-            csvData += element + "\n";
-        } else {
-            csvData += element;
-        }
-    });
-
-    var encodedUri = encodeURI(csvData);
-    var download = document.createElement("a");
-    download.setAttribute("href", encodedUri);
-    download.setAttribute("download", "results.csv");
-    download.click();
 }
 
 

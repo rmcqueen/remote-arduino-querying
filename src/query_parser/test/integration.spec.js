@@ -1,10 +1,12 @@
 const mqtt = require('mqtt');
 const Promise = require('bluebird');
 const { expect } = require('chai');
-const publishQueryData = require('./../publishQueryData.js');
+const publishQueryData = require('./../publishQueryData.js'); 
+const { parseResultSet } = require('./../lib.js');
+const { applyWhere } = require('./../applyWhere.js');
 
-const nonTerminalPage = "{\"client\": \"test\", \"entries\": \"team\\nname:s;\\ndavid:name;\\nryan:name;\\ndustin:name;;EOP\"}";
-const terminalPage = "{\"client\": \"test\", \"entries\":\"spencer:name;\\n;EOR\"}";
+const nonTerminalPage = "team\nname:s;\ndavid:name;\nryan:name;\ndustin:name;;\nEOP\u0000";
+const terminalPage = "spencer:name;\n;EOR\u0000";
 
 function mockArduinoResponse(response) {
   // synchronous promise wrapper
@@ -24,7 +26,7 @@ function mockArduinoResponse(response) {
 }
 
 function testCallback() {
-  console.log('testCallback executed')
+  console.log('testCallback executed');
   const pages = [nonTerminalPage, terminalPage];
   return Promise.each(pages, page => mockArduinoResponse(page));
 }
@@ -36,10 +38,31 @@ describe('Arduino responses', () => {
       const targets = ['test'];
       return publishQueryData(queryString, targets, testCallback)
         .then(resultSet => {
-          const expectedResultSet = JSON.parse("[[{\"client\": \"test\", \"entries\": \"team\\nname:s;\\ndavid:name;\\nryan:name;\\ndustin:name;;EOP\"}, {\"client\": \"test\", \"entries\":\"spencer:name;\\n;EOR\"}]]");
-          console.log(resultSet);
+          const expectedResultSet = JSON.parse("[[{\"client\": \"test\", \"entries\": \"team\\nname:s;\\ndavid:name;\\nryan:name;\\ndustin:name;;\\nEOP\\u0000\"}, {\"client\": \"test\", \"entries\":\"spencer:name;\\n;EOR\\u0000\"}]]");
           expect(resultSet).to.deep.equal(expectedResultSet);
         });
     });
-  })
+  });
+
+  describe('lib integrations', () => {
+    it('can parse the arduino responses into an object', () => {
+      const queryString = 'SELECT * FROM team WHERE name LIKE spencer';
+      const targets = ['test'];
+      const expectedResultSet = {
+        attributes: {
+          name: 'String',
+        },
+        clientTuples: {
+          test: [ 'spencer,' ],
+        }
+      };
+      return publishQueryData(queryString, targets, testCallback)
+        .then(resultSet => {
+          const result = applyWhere(parseResultSet(resultSet), queryString);
+          expect(result).to.deep.equal(expectedResultSet);
+        });
+    });
+  });
 });
+
+

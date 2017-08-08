@@ -1,5 +1,5 @@
 module.exports = sql => {
-  const tableName = sql.split(' FROM ')[1].split(';')[0];
+  const tableName = sql.split(' FROM ')[1].split(' WHERE')[0].split(';')[0];
   const fieldString = sql.split('SELECT ')[1].split(' FROM')[0].split(', ').join(',');
 
   function constructFieldList(fieldString) {
