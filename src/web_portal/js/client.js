@@ -54,7 +54,7 @@ function onConnectionLost(responseObject) {
         console.log("onConnectionLost:" + responseObject.errorMessage);
     }
 
-
+    updateLoadingIconText('Error');
     $('#statusBox').html('Disconnected');
     $('#statusBox').attr('class', 'label label-warning');
 
