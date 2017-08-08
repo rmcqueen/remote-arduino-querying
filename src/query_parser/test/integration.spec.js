@@ -53,7 +53,7 @@ describe('Arduino responses', () => {
           name: 'String',
         },
         clientTuples: {
-          test: [ 'spencer' ],
+          test: [ 'spencer,' ],
         }
       };
       return publishQueryData(queryString, targets, testCallback)

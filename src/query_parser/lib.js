@@ -50,7 +50,9 @@ function buildClientTuplePages(resultSet) {
     }
     const compressedTuples = result.entries;
     const tuplePages = compressedTuples.map(row => {
-      const fields = row.split(':').filter((datum, idx) => (idx + 1) % 2); // remove field names stored in compressed rows
+      console.log('ROW', row);
+      const fields = row.split(';').map(attr => attr.split(':')[0]).join() // remove field names stored in compressed rows
+      console.log(fields);
       return fields;
     });
     const tuples = flatten(tuplePages);
@@ -89,6 +91,7 @@ function resultSetNeedsParsing(resultSet) {
 function parseResultSet(resultSet) {
   if (!resultSetNeedsParsing(resultSet)) return false;
   const attributes = getResultSetAttributes(resultSet);
+  console.log(attributes)
   const clientTuplePages = resultSet.map(buildClientTuplePages);
   const clientTuples = clientTuplePages.map(groupTuplePagesByClient);
   const flattenedClientTuples = flattenClientTuples(clientTuples);

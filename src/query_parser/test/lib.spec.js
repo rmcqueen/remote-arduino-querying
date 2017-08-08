@@ -38,8 +38,8 @@ describe('lib', () => {
   describe('buildClientTuplePages', () => {
     it('builds an array of client tuple mappings', () => {
       const expectedClientTuplePages = [
-        { client: 'Arduino1', tuples: [ 'david', 'ryan', 'dustin' ] },
-        { client: 'Arduino1', tuples: [ 'spencer' ] }
+        { client: 'Arduino1', tuples: [ 'david,', 'ryan,', 'dustin,' ] },
+        { client: 'Arduino1', tuples: [ 'spencer,' ] }
       ];
       const clientTuplePages = buildClientTuplePages(resultSet);
       expect(clientTuplePages).to.deep.equal(expectedClientTuplePages);
@@ -61,10 +61,10 @@ describe('lib', () => {
         },
         clientTuples: {
           Arduino1: [
-            'david',
-            'ryan',
-            'dustin',
-            'spencer',
+            'david,',
+            'ryan,',
+            'dustin,',
+            'spencer,',
           ]
         }
       }
