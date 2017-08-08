@@ -17,7 +17,7 @@
 
 //Network
 byte mac[] = {
-  0x00, 0xAA, 0xBB, 0xCC, 0xDE, 0x04
+  0x00, 0xAA, 0xBB, 0xCC, 0xDD, 0x02
 };
 
 EthernetClient c;
@@ -91,6 +91,10 @@ int openSkipList(Dictionary <int, ion_value_t > *dict, char* tableName) {
   return success_t;
 }
 
+/**
+  @brief    Connects the arduino client to the broker.
+  @return   The resulting status based on the connection status.
+*/
 int connect() {
   Serial.println("Connecting...");
   int port = 1883;
@@ -125,6 +129,14 @@ int connect() {
   }
 }
 
+/**
+  @brief    Creates a new table in the database.
+  @param    tableName
+        The name for the table being created.
+  @param    fieldString
+        The information about the table schema.
+  @return   A status describing the result of the creation.
+*/
 int createTable(char* tableName, char* fieldString) {
   Serial.println("createTable called");
   tables->get(stringToInt(tableName));
@@ -157,6 +169,14 @@ void describeTable(char* tableName) {
   }
 }
 
+/**
+  @brief    Insert a value into a table.
+  @param    tableName
+        The name for the table being created.
+  @param    tuple
+        The tuple being inserted into the table.
+  @returns  A status describing the result of the insertion.
+*/
 int insertInto(char* tableName, char* tuple) {
   Dictionary < int, ion_value_t > *table = ((Dictionary < int, ion_value_t >*) tables->get(stringToInt(tableName)));
   if (err_item_not_found == tables->last_status.error)
@@ -170,6 +190,12 @@ int insertInto(char* tableName, char* tuple) {
   return success_t;
 }
 
+/**
+  @brief    Selects all tuples in a given table.
+  @param    tableName
+        The name for the table being queried.
+  @returns  A complete set of all the tuples in the table or the status describing the result of the query.
+*/
 char* selectAll(char* tableName) {
   int recordsBuffered = 0;
   int maxRecordsPerPage = 5;
@@ -210,6 +236,12 @@ char* selectAll(char* tableName) {
 }
 
 // Helpers
+/**
+  @brief    Converts a char* into an integer.
+  @param    str
+        The char* being converted.
+  @returns  An integer value based on the char*.
+*/
 int stringToInt(char* str) {
   int result = 0;
   for (int i = (strlen(str) - 1); i >= 0; i--) {
@@ -219,6 +251,11 @@ int stringToInt(char* str) {
   return result;
 }
 
+/**
+  @brief    Sends an MQTT message to the 'outTopic'.
+  @param    result
+        The contents of the outgoing message.
+*/
 void sendMessageToTopic(char* result) {
   printf("Sending %s to %s\n", result, outTopic);
   MQTT::Message message;
@@ -230,6 +267,12 @@ void sendMessageToTopic(char* result) {
   client.publish(outTopic, message);
 }
 
+/**
+  @brief    Recieves incoming MQTT messages containing query instructions.
+  @param    md
+          MQTT data from an incoming MQTT message.
+  @returns  A status describing the result of the incoming query message.
+*/
 int messageArrived(MQTT::MessageData& md) {
   char payload[MAX_MQTT_PACKET_SIZE];
   MQTT::Message &message = md.message;
