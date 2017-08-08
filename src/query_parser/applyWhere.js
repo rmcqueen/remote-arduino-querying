@@ -65,7 +65,6 @@ function applyWhereCondition(resultSet, where) {
 }
 
 function applyWhere(resultSet, selectStatement) {
-  console.log(resultSet);
   const whereClause = parseWhereClauseFromSelect(selectStatement);
   if (resultSet === false || whereClause === false) return resultSet;
   const where = parseWhere(whereClause);

@@ -53,7 +53,8 @@ function buildClientTuplePages(resultSet) {
       const fields = row.split(';').map(attr => attr.split(':')[0]).join() // remove field names stored in compressed rows
       return fields;
     });
-    const tuples = flatten(tuplePages);
+    const tuples = flatten(tuplePages).filter(tuple => tuple != '');
+    console.log(tuples);
     return {
       client: client,
       tuples: tuples,

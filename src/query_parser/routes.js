@@ -12,7 +12,6 @@ module.exports = (app) => {
   app.get('/publish_query', (req, res) => {
     console.log(req.query);
     const queryString = req.query.queryString.replace(/;$/, ''); // remove terminal semicolon if present
-    const whereClauseIndex = queryString.indexOf('WHERE') === -1 ? false : queryString.indexOf('WHERE');
     const targets =  req.query.targets;
     publishQueryData(queryString, targets)
       .then(parseResultSet)
