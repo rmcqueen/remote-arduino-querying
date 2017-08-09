@@ -11,6 +11,7 @@ $(document).ready(function () {
         const download = document.createElement("a");
         download.setAttribute("href", encodedUri);
         download.setAttribute("download", "results.csv");
+        document.body.appendChild(download);
         download.click();
     });
 });
