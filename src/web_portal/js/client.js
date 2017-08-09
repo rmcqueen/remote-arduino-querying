@@ -55,7 +55,7 @@ function onConnectionLost(responseObject) {
         console.log("onConnectionLost:" + responseObject.errorMessage);
     }
 
-
+    updateLoadingIconText('Error');
     $('#statusBox').html('Disconnected');
     $('#statusBox').attr('class', 'label label-warning');
 
@@ -77,28 +77,27 @@ function onMessageArrived(message) {
 
     // If the topic is status, we know an Arduino is either connecting, or
     // has been disconnected
-    if (destination == "status") {
+    if (destination === "status") {
         if (message.payloadString == "online" && $.inArray(clientId, connectedClients) == -1) {
             connectedClients.push(clientId);
             createCheckBoxes(clientId);
         }
 
-        if (message.payloadString == "offline" && $.inArray(clientId, connectedClients) != -1) {
+        if (message.payloadString === "offline" && $.inArray(clientId, connectedClients) != -1) {
             connectedClients.splice($.inArray(clientId, connectedClients), 1);
             removeCheckboxes(clientId);
         }
-    }
-
-    if (destination == "result") {
+    } else if (destination === "result") {
+        updateLoadingIconText('Received');
         displayResults(clientId, message.payloadString);
-        fillProgressBar(1, 100);
     } else {
-        console.log("No results");
+        updateLoadingIconText('Error');
     }
 }
 
 /*
-* Purpose: When a message has been delivered, the progress bar will fill up.
+* TODO: remove this? it doesn't appear to be used anywhere.
+* Purpose: When a message has been delivered, the success alert text will update.
 * A message being delivered means the processing that this client does is finished,
 * and the message has been sent to the server.
 *
@@ -107,7 +106,8 @@ function onMessageArrived(message) {
  * it sent back. See mqttws31.js for more information
  */
 function onMessageDelivered(message) {
-    fillProgressBar(1, 66);
+    // TODO: This needs to be refactored since the message param is not being used
+    updateLoadingIconText('Delivered')
 }
 
 
@@ -124,9 +124,6 @@ function send() {
     var userQuery = $('#publish').val();
     var selectedArduinos = [];
 
-	// Reset the values within the text area
-    $('#publish').val("");
-
 	// Return if there is no available MQTT client to use
     if (!client) {
         return;
@@ -138,6 +135,21 @@ function send() {
             selectedArduinos.push(this.id);
         }
     });
+
+    // Note: this cannot be a falsy check (!valid....()) it must check type.
+    if(validQueryEntered() === false) {
+        return;
+    }
+    
+    // Note: this cannot be a falsy check (!valid....()) it must check type.
+    if(validArduinoSelected(selectedArduinos) === false) {
+        return;
+    }
+    // Reset the values within the text area
+    $('#publish').val('');
+
+    // Store the user's query in the query history text area
+    $('#queryhistory').append(userQuery + '\n');
 	// Perform an AJAX request to the server for query parsing
     $.ajax({
         url: "http://localhost:3000/publish_query",
@@ -147,17 +159,14 @@ function send() {
             targets: selectedArduinos
         },
         success: function(result) {
-            console.log('Success');
         },
-        error: function() {
-            console.log('Error');
+        error: function(err) {
+            updateLoadingIconText('Error');
+            console.log('Error in send()');
+            console.log(err);
         }
 
     });
-
-    $('#successBox').show();
-    $('#successBox').fadeOut(3000);
-    fillProgressBar(1, 33);
 }
 
 
@@ -168,35 +177,6 @@ function send() {
 function appendcsvInputData(message) {
     csvInputData += message + "\n";
 }
-
-
-/*
-* Purpose: enables a user to download the results of their query into a CSV
-* formatted file as 'results.csv'
-*/
-$(document).ready(function () {
-    $("#exportButton").click(function () {
-
-        const textAreaData = $("#resultArea").val();
-        const insertSquareBracket = "[" + textAreaData + "]";
-        console.log(textAreaData);
-
-        const csv = Papa.unparse(insertSquareBracket);
-
-        const combine = "data:text/csv;charset=utf-8," + csv;
-
-        console.log(csv);
-
-        const encodedUri = encodeURI(combine);
-        const download = document.createElement("a");
-        download.setAttribute("href", encodedUri);
-        download.setAttribute("download", "results.csv");
-        download.click();
-
-        return csv;
-    });
-
-});
 
 
 /*
@@ -247,51 +227,89 @@ function removeCheckboxes(name) {
 function displayResults(clientId, message) {
     const newResultEntry = `${clientId}: {csv: ${message}},`
     $("#resultArea").append(newResultEntry);
-  
     appendcsvInputData("\n" + clientId + ":\n" + message);
 }
 
+
 /*
-* Purpose: this function fills up the progress bar in 3 steps. The first 1/3
-* of the bar gets filled after a message has been sent from the web client.
-* The second 1/3 of the bar gets filled up once a message has been delivered
-* to the server. Once a message has been received and written out on the
-* web client, it will fill up the whole progress bar.
-* After 2 seconds, the progress bar resets itself.
-*
-* @param int start the position the progress bar will start to fill at.
-*
-* @param int finish the position the progress bar will finish filling at.
+* Purpose: update the text on the success banner to give the user an indication of where their query is at
 */
-function fillProgressBar(start, finish) {
+function updateLoadingIconText(status) {
+    if (status === 'Delivered') {
+        $('.alert').find('strong').html('Message Delivered! awaiting results...');
+    } else if (status === 'Received') {
+        $('.alert').find('strong').html('Message Received!');
+        $('.loader').find('svg').remove();
+        $('.loader').find('path').remove();
+        $('.loader').append('<span class="glyphicon glyphicon-ok" aria-hidden="true" style="margin: 0 auto;"></span>');
+    } else {
+        $('.header_row').find('.alert').replaceWith(
+                '<div class="alert alert-danger alert-dismissable fade in">' +
+                '<span class="glyphicon glyphicon-remove" aria-hidden="true" style="margin: 0 auto;"></span>' +
+                '<button type="button" class="close" data-dismiss="alert" aria-label="close">&times;</button>' +
+                '<strong>Error:</strong> Error in query. Ensure the syntax is correct and try again.' +
+                '</div>');
+    }
+}
 
-    var startingWidth = start;
-    var progressBar = document.getElementById("progressBar");
-    var clear = setInterval(stopFill, 1);
 
-    function stopFill() {
-        if (startingWidth >= finish) {
-            clearInterval(clear);
-        } else {
-            startingWidth++;
-            progressBar.style.width = startingWidth + '%';
-            if (startingWidth <= 33) {
-                progressBar.innerHTML = "Message Sent...";
-            }
-            else if (startingWidth <= 66) {
-                progressBar.innerHTML = "Message Delivered...";
-            }
-            else if (startingWidth > 66) {
-                progressBar.innerHTML = "Message Received";
-                progressBar.className = "progress-bar progress-bar-success";
+/*
+* Purpose: checks whether or not text has been entered into the textbox to reduce potential errors
+*
+* @return bool  indicates whether or not text has been entered in the textbox
+*/
+function validQueryEntered() {
+    $('.header_row').empty();
+    if ($('#publish').val() === '') {
+        $('.header_row').append('<div class="alert alert-danger alert-dismissable fade in">' +
+        '<button type="button" class="close" data-dismiss="alert" aria-label="close">&times;</button>' +
+        '<strong>Error:</strong> A query must be entered.' +
+        '</div>');
+    return false;
+    }
+    else {
+        return true;
+    }
+}
 
-                setTimeout(function () {
-                    progressBar.style.width = 0 + '%';
-                    progressBar.innerHTML = ""
-                }, 2000);
 
-            }
-
+/*
+* Purpose: this function checks whether or not a user has selected any arduinos before allowing them to proceed
+* with sending their query
+*
+* @param String[] selectedArduinos  indicates which arduinos are selected
+@ return boolean    whether or not the Arduino selected is valid (if there are any selected)
+*/
+function validArduinoSelected(selectedArduinos) {
+    $('.header_row').empty();
+    if (selectedArduinos.length === 0) {
+        $('.header_row').append('<div class="alert alert-danger alert-dismissable fade in">' +
+        '<button type="button" class="close" data-dismiss="alert" aria-label="close">&times;</button>' +
+        '<strong>Error:</strong> An Arduino must be selected.' +
+        '</div>');
+        return false;
         }
+
+    else {
+        $('.header_row').append(
+            '<div class="alert alert-success alert-dismissable">' +
+                '<div class="loader loader--style3" title="2">' +
+                '<svg version="1.1" id="loader-1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"' +
+                    'width="40px" height="40px" viewBox="0 0 50 50" style="enable-background:new 0 0 50 50;" xml:space="preserve">' +
+                '<path fill="#000" d="M43.935,25.145c0-10.318-8.364-18.683-18.683-18.683c-10.318,0-18.683,8.365-18.683,18.683h4.068c0-8.071,6.543-14.615,14.615-14.615c8.072,0,14.615,6.543,14.615,14.615H43.935z">' +
+                '<animateTransform attributeType="xml"' +
+                    'attributeName="transform"' +
+                    'type="rotate"' +
+                    'from="0 25 25"' +
+                    'to="360 25 25"' +
+                    'dur="0.6s"' +
+                    'repeatCount="indefinite"/>' +
+                '</path>' +
+                '</svg>' +
+                '</div>' +
+                '<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>' +
+                '<strong>Message Sent! awaiting results...</strong>' +
+            '</div>');
+        return true;
     }
 }

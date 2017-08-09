@@ -1,0 +1,64 @@
+<!DOCTYPE HTML>
+<meta charset="UTF-8">
+<html>
+<head>
+    <link rel="stylesheet" href="css/stylesheet.css">
+    <link rel="stylesheet" href="css/bootstrap.min.css"> 
+</head>
+<body class="ifn-body">
+    <div class="col-lg-12 ifn-header text-center">
+        <div>
+            <h1>Ion Field Network</h1>
+            <span class="label label-warning" id="statusBox">Disconnected</span>
+        </div>
+    </div>
+
+    <div class="header_row"></div>
+
+    <div class="container">
+        <div id="left">
+            <label for="publish" class="col-lg-10 control-label"><h4><b>Query</b></h4></label>
+            <div class="form-group">
+                <div class="col-lg-12">
+                <textarea class="form-control" rows="10" id="publish" placeholder="Enter a query here"></textarea>
+                </div>
+            </div>
+            <button class="btn btn-default" id="sendButton" value="Send" onclick="send();">Send</button>
+            <label for="checkbox" class="col-lg-6 control-label col-md-offset-1"><h4><b>Available Arduinos</b></h4></label>
+            <div class="col-lg-3" id="checkbox"></div>
+        </div>
+
+
+        <div id="right">
+            <label for="resultArea" class="col-lg-10 control-label"><h4><b>Query Results</b></h4></label>
+            <div class="form-group">
+                <div class="col-lg-10">
+                    <textarea class="form-control" rows="10" id="resultArea"></textarea>
+                </div>
+            </div>
+            <button type="button" class="btn btn-default" id="exportButton">Export to CSV</button>
+        </div>
+
+        <div id="history">
+            <label for="queryhistory" class="col-lg-14 control-label"><h4><b>Query History</b></h4></label>
+            <div class="form-group">
+                <div class="col-lg-10 col-md-offset-1">
+                    <textarea class="form-control" rows="10" id="queryhistory"></textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row"></div>
+<div class="footer-panel text-center">
+    <h4>Ion Field Network</h4>
+</div>
+
+<script type="text/javascript" src="js/papaparse.min.js"></script>
+<script type="text/javascript" src="js/mqttws31.js"></script>
+<script type="text/javascript" src="js/jquery.min.js"></script>
+<script type="text/javascript" src="js/bootstrap.min.js"></script>
+<script type="text/javascript" src="js/client.js"></script>
+<script type="text/javascript" src="js/handlers.js"></script>
+</body>
+</html>
