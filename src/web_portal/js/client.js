@@ -159,6 +159,9 @@ function send() {
             targets: selectedArduinos
         },
         success: function(result) {
+             if (result !== false) {
+                $("#resultArea").val(JSON.stringify(result.clientTuples, null, 2));
+            }
         },
         error: function(err) {
             updateLoadingIconText('Error');
