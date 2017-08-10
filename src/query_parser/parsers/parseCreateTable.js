@@ -26,7 +26,6 @@ module.exports = sql => {
     table: tableName,
     fields: compressFields(fieldString),
   }
-  console.log(req)
   return req;
 }
 
