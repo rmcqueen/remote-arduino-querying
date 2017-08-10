@@ -11,6 +11,8 @@
 #define SELECT_ALL_OP 2
 #define MQTTCLIENT_QOS2 1
 #define MAX_INCOMING_Q0S2_MESSAGES 10
+#define DHTPIN 2     // what digital pin we're connected to
+#define DHTTYPE DHT22
 
 #include <ArduinoUnit.h>
 #include <ArduinoJson.h>
@@ -28,5 +30,5 @@
 #include <IPStack.h>
 #include <Countdown.h>
 #include <ArduinoUnit.h>
-
-
+#include <ArduinoUnit.h>
+#include <DHT.h> //only if you have a DHT sensor, otherwise remove this

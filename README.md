@@ -50,6 +50,9 @@ yarn start
  - Upon connection, the clients will publish the message `online` to the topic `status/Arduino1` by default. The status topic is listened to by the web portal which adds new checkboxes in the list of targetable arduinos upon receiving.
  - When an Arduino goes offline, a last-will-and-testemant message `offline` is published to `status/Arduino` by default, trigger the removal of the associated checkbox from the webportal.
 
+### Tests
+- All of the tests are located in the folder respective to the components being tested. For example, if you wish to view tests for the Arduino code, you can find it located in `src/arduino_client/test/`. This project is heavily tested, however, it still lacks in the area of regression, and some integration testing. Please refer to the Contributing section if you wish to provide additional tests, or have feedback on the current tests.
+
 ### Known Gotchas
  - Web portal failing to connect? Make sure the relevant ports (:1883 and :8080) are all free and clean
  - Arduino failing to connect? Make sure your the hostname variable used is your IPv4 address
