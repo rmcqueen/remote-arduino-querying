@@ -13,7 +13,13 @@
 3. NodeJS
     - NodeJS v6.1 or higher (https://nodejs.org/en/download/)
     - Yarn v0.27.5 or higher (https://yarnpkg.com/lang/en/docs/install/)
-
+    - Express v4.0 or higher (https://expressjs.com/en/starter/installing.html)
+    - Blubird v3.5 or higher (http://bluebirdjs.com/docs/install.html)
+    - Lodash v4.17 or higher (https://lodash.com/)
+    - mqtt v2.0 or higher (https://www.npmjs.com/package/mqtt)
+    - Moch (for tests) v3.5 or higher (https://mochajs.org/)
+    - Chai (for tests) v4.1 or higher (http://chaijs.com/)
+    
 ### Setup Instructions
  1. Install Moquette (URL is in the Library Requirements section)
 
