@@ -1,0 +1,2 @@
+run:
+java -jar BrokerTest.jar

@@ -13,7 +13,13 @@
 3. NodeJS
     - NodeJS v6.1 or higher (https://nodejs.org/en/download/)
     - Yarn v0.27.5 or higher (https://yarnpkg.com/lang/en/docs/install/)
-
+    - Express v4.15 or higher (https://expressjs.com/en/starter/installing.html)
+    - Blubird v3.5 or higher (http://bluebirdjs.com/docs/install.html)
+    - Lodash v4.17 or higher (https://lodash.com/)
+    - mqtt v2.9 or higher (https://www.npmjs.com/package/mqtt)
+    - Mocha (for tests) v3.5 or higher (https://mochajs.org/)
+    - Chai (for tests) v4.1 or higher (http://chaijs.com/)
+    
 ### Linux/MacOS Setup Instructions
  1. Install Moquette (URL is in the Library Requirements section)
 
@@ -58,6 +64,9 @@
  - If you want to query one arduino and not another, this must be changed for each Arduino. This channel is set in the `outTopic` variable in `src/arudino_client/client.ino` and is set to `result/Arduino1` by default.
  - Upon connection, the clients will publish the message `online` to the topic `status/Arduino1` by default. The status topic is listened to by the web portal which adds new checkboxes in the list of targetable arduinos upon receiving.
  - When an Arduino goes offline, a last-will-and-testemant message `offline` is published to `status/Arduino` by default, trigger the removal of the associated checkbox from the webportal.
+
+### Tests
+- All of the tests are located in the folder respective to the components being tested. For example, if you wish to view tests for the Arduino code, you can find it located in `src/arduino_client/test/`. This project is heavily tested, however, it still lacks in the area of regression, and some integration testing. Please refer to the Contributing section if you wish to provide additional tests, or have feedback on the current tests.
 
 ### Known Gotchas
  - Web portal failing to connect? Make sure the relevant ports (:1883 and :8080) are all free and clean

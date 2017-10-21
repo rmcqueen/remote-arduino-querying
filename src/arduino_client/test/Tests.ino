@@ -1,3 +1,6 @@
+// Initialize the sensor
+DHT dht(DHTPIN, DHTTYPE);
+
 //Check status of ethernet in setup
 int ethernetStatus;
 
@@ -139,6 +142,22 @@ test(messageArrived)
   assertEqual(messageArrived( *md ), SELECT_ALL_OP);
 }
 
+test(pinNumberConfig)
+{
+  assertEqual(2, DHTPIN);
+}
+
+test(sensorTypeConfig)
+{
+  assertEqual(DHT22, DHTTYPE);  
+}
+
+test(temperatureReading)
+{
+  int temperatureReading = dht.readTemperature('c');
+  assertEqual(false, isnan(temperatureReading));
+}
+
 void setup() 
 {
   Serial.begin(9600);
@@ -146,6 +165,7 @@ void setup()
   ethernetStatus = Ethernet.begin(mac);
   recordCount = 3;
   ptrRecordCount = &recordCount;
+  dht.begin();
 }
 
 void loop() 
