@@ -4,7 +4,7 @@
 1. Arduino:
     - IonDB v1.2.0 (https://github.com/iondbproject/iondb)
     - ArduinoJson v5.11.1 (https://github.com/bblanchon/ArduinoJson)
-    - Arduino MQTT v1.4.1 (https://github.com/monstrenyatko/ArduinoMqtt)
+    - Arduino MQTT v1.0.0 (https://www.eclipse.org/downloads/download.php?file=/paho/arduino_1.0.0.zip)
     - ArduinoUnit (for tests) v2.2.0 (https://github.com/mmurdoch/arduinounit)
 
 2. MQTT Broker
@@ -14,34 +14,43 @@
     - NodeJS v6.1 or higher (https://nodejs.org/en/download/)
     - Yarn v0.27.5 or higher (https://yarnpkg.com/lang/en/docs/install/)
 
-### Setup Instructions
+### Linux/MacOS Setup Instructions
  1. Install Moquette (URL is in the Library Requirements section)
 
  2. Once Moquette is installed, replace the moquette.conf file in `/path/to/moquette/location/distribution-0.10-bundle-tar/config/` with the moquette.conf provided in the config folder of this repository. For a unix based operating system use:
- ```
- mv /path/to/repo/conf/moquette.conf /path/to/moquette/location/distribution-0.10-bundle-tar/config/
- ```
+    ```
+    mv /path/to/repo/conf/moquette.conf /path/to/moquette/location/distribution-0.10-bundle-tar/config/
+    ```
 
-3. Start Moquette by navigating to the bin folder included in the installation location you chose, and run it based on your operating system. There is a script for both Unix based systems, and Windows, however, this project has only been tested on Unix systems.
-```
-cd /path/to/moquette/location/distribution-0.10-bundle-tar/bin
-./moquette.sh
-```
+3. Start Moquette by navigating to the bin folder included in the installation location you chose, and run it.
+    ```
+    cd /path/to/moquette/location/distribution-0.10-bundle-tar/bin
+    ./moquette.sh
+    ```
 
-3. Navigate to the project's root directory and run Yarn to install the necessary dependencies for NodeJS, as well as start it:
-```
-cd ~/path/to/repo/location/src/query_parser
-yarn start
-```
+4. Install Arduino MQTT (URL is in the Library Requirements section)
+    - Unzip the file, and place it in your Arduino library directory
+    ```
+    cd path/to/arduino_mqtt_library
+    unzip arduino_1.0.0.zip
+    mv MQTTClient path/to/Arduino/libraries/
+    ```
 
-4. Navigate to the `web_portal` directory and open `main.html` with Chrome, or Firefox (These are the only two browsers Ion-Field-Network has been tested on).
+5. Navigate to the project's root directory and run Yarn to install the necessary dependencies for NodeJS, as well as start it:
+   ```
+    cd ~/path/to/repo/location/src/query_parser
+    yarn install
+    yarn start
+    ```
 
-5. Open the Arduino IDE, and open the `client.ino` file located in `/path/to/repo/src/arduino_client/client/client.ino`
- - Ensure all dependencies are installed, and the IP address/MAC address are configured to your system's specifications
+6. Navigate to the `web_portal` directory and open `main.html` with Chrome, or Firefox (These are the only two browsers Ion-Field-Network has been tested on).
 
-6. Build the `client.ino` file
+7. Open the Arduino IDE, and open the `client.ino` file located in `/path/to/repo/src/arduino_client/client/client.ino`
+    - Ensure all dependencies are installed, and the IP address/MAC address are configured to your system's specifications
 
-7. Congratulations! You should now see Arduino1 in the "Available Arduinos" section on the web portal.
+8. Build the `client.ino` file
+
+9. Congratulations! You should now see Arduino1 in the "Available Arduinos" section on the web portal.
 
 ### Default MQTT Topic Settings
  - Queries made from the web portal will be published the query to `query/ARDUINO_NAME_HERE` for each checkbox selected. Arduinos are connected automatically subscribed to a topic of this format in `onConnect()` in `src/arudino_client/client.ino` The channel subscribed to can be found in the `topic` variable in this same file and it set to `query/Arduino1` by default.
